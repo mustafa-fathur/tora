@@ -28,7 +28,7 @@ Just me, in Indonesia. Indonesian banks aren't covered by bank-sync aggregators,
 | Phase | Scope |
 |---|---|
 | A | Repo docs, light green theme, first commit |
-| B | Private GitHub repo + push |
+| B | GitHub repo + push (done: public, `master`) |
 | C | Supabase project, Auth config, env vars, `heartbeat` table |
 | D | Netlify deploy + Supabase redirect URLs |
 | E | Auth UI: login, register, forgot/reset password, protected placeholder dashboard |

@@ -47,10 +47,16 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - Money: store amounts as integers in minor units, or as `numeric`. Never use floats. Default currency is IDR (not confirmed yet; ask the owner before putting it in the schema).
 - Keep the app portable. Don't use Netlify-only APIs in app code, because a move to Cloud Run is possible.
 - Docs and code comments are in English.
-- Keep commits small and meaningful.
+- Keep commits small and meaningful. The default branch is `master`.
+
+## The repo is PUBLIC
+
+`github.com/mustafa-fathur/tora` is **public**, and its default branch is **`master`**. Anything committed, pushed, or printed in GitHub Actions logs or artifacts can be read by anyone, permanently, even after you delete it. Before every commit, check `git diff --staged` for secrets and personal data.
 
 ## Never do
 
+- Never commit real financial data: bank statements, CSV exports, `pg_dump` backups, screenshots with real balances, or seed files built from real transactions. Use clearly fake fixtures.
+- Never print secrets or data in GitHub Actions (no `echo` of env vars, no dump uploaded as an artifact). Backups go to storage the owner controls, encrypted.
 - Never commit `.env.local` or any real key. Only `.env.example` (placeholders) is committed.
 - Never use the Supabase `service_role` / secret key in the Next.js app, on the server or the client.
 - Never create a table without RLS enabled and policies scoped to `auth.uid()`.

@@ -51,11 +51,12 @@ sequenceDiagram
 - Only the **publishable/anon key** is used in the app (`NEXT_PUBLIC_*`). RLS does the authorization.
 - Every table has **RLS on** and policies scoped to `auth.uid()`.
 - The service_role/secret key is used only in GitHub Actions secrets (backup jobs), never in the app.
+- The repo is **public**: Actions logs and artifacts are public too, so backup jobs must never print data or upload dumps as artifacts.
 
 ## Deployment and ops
 ```mermaid
 flowchart LR
-    Dev[Local dev] -->|git push| GH[GitHub private repo]
+    Dev[Local dev] -->|git push| GH[GitHub public repo, master]
     GH -->|build + deploy| NF[Netlify: prod + PR previews]
     NF -->|HTTPS| SB[(Supabase Singapore)]
     GH -. later: cron .-> HB[Keep-alive: read heartbeat]

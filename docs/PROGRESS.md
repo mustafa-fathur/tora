@@ -2,6 +2,19 @@
 
 Newest session at the top. Each entry has: done, next, open questions.
 
+## 2026-11-02: Session 1b (Phase B)
+
+**Done**
+- The owner created `github.com/mustafa-fathur/tora` as **public** with default branch **`master`**, and pushed (HEAD `064a8e9`).
+- Scanned the full history for secrets: clean. Secret scanning and push protection are enabled on the repo.
+- Wrote the public-repo rules into `AGENTS.md`, added `.gitignore` guards for backups, dumps, and data folders, and updated DECISIONS and ARCHITECTURE.
+
+**Next**
+- Phase C: Supabase project.
+
+**Open questions**
+- **Keep-alive vs. the 60-day rule:** GitHub disables scheduled workflows in public repos after 60 days without repo activity. Options: (a) put the cron workflows in a small separate **private** repo, (b) re-enable the workflow manually when GitHub emails a warning, (c) use an external cron service. Decide before building the keep-alive job.
+
 ## 2026-11-02: Session 1 (Phase A)
 
 **Done**
@@ -13,7 +26,6 @@ Newest session at the top. Each entry has: done, next, open questions.
 - The placeholder home page shows the logo and buttons as a theme check.
 
 **Next**
-- Phase B: create the private GitHub repo, add the remote, and push.
 - Phase C: Supabase project (Singapore), Auth config, env vars, and the `heartbeat` table (one row, RLS on, `anon` SELECT-only), as a migration if we adopt the Supabase CLI.
 - Phase D: Netlify deploy, then add the prod and preview URLs to Supabase redirect URLs.
 - Phase E: auth pages (`/login`, `/register`, `/forgot-password`, `/reset-password`, confirm route), `proxy.ts`, and the placeholder `/dashboard`.
