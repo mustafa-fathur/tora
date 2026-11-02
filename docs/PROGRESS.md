@@ -2,6 +2,21 @@
 
 Newest session at the top. Each entry has: done, next, open questions.
 
+## 2026-11-02: Session 1c (Phase E, auth)
+
+**Done**
+- Phase D finished: Supabase Site URL = production, and redirect URLs cover localhost:5000, production, and Netlify deploy previews.
+- Added `@supabase/supabase-js` + `@supabase/ssr`, and the shadcn `login-03`/`signup-03` blocks (restyled, with Tora logo and copy).
+- Pages: `/login`, `/register`, `/forgot-password`, `/reset-password`, and `/dashboard` (placeholder with log out). Route handler: `/auth/confirm`.
+- States: loading buttons, wrong password, unconfirmed email (with a resend button), "check your inbox", password mismatch or too short, rate limits, network errors, and invalid or expired links.
+- Verified locally (production build): signed-out redirects, bad link → `/login?error=link_invalid`, `//evil.com` in `next` is blocked, forms render server-side, and Supabase returns `invalid_credentials` for a wrong password. A headless browser test wasn't possible (system libraries missing in WSL).
+
+**Next**
+- The owner updates the Supabase email templates (Confirm signup, Reset password) to the `token_hash` format.
+- The owner tests the full flow: register → confirm email → dashboard → log out → forgot → reset.
+- Decide whether to disable public sign-ups once the owner's account exists.
+- Then: `dashboard-01` shell, and confirm IDR before the schema.
+
 ## 2026-11-02: Session 1b (Phase B)
 
 **Done**

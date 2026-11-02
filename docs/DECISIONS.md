@@ -16,3 +16,6 @@
 | 2026-11-02 | **Repo is public**, default branch `master` (owner's choice, supersedes "private") | Owner is fine with the code being public. Consequences: no secrets or real financial data in git or Actions logs/artifacts; secret scanning + push protection on; keep-alive cron needs a plan for the 60-day rule (see PROGRESS open questions) |
 | 2026-11-02 | Local dev port **5000** (`next dev -p 5000`; `start` uses `$PORT`, falling back to 5000); Supabase Site URL + redirect allow `http://localhost:5000` | Other apps (incl. other Next.js apps) often hold 3000 |
 | 2026-11-02 | Supabase CLI (dev dependency) + SQL migrations in `supabase/migrations/` | Schema is versioned and reviewable in git; migrations contain only schema, so they're safe in a public repo |
+| 2026-11-02 | Auth via server actions + `useActionState` (no browser Supabase client yet) | Auth logic stays on the server; forms work without client-side Supabase; pending and error states come for free |
+| 2026-11-02 | Email links use `token_hash` templates → `/auth/confirm` (PKCE `code` also handled) | Works even if the link is opened on another device or browser; recommended by the Supabase SSR guide |
+| 2026-11-02 | Signed-in/out redirects live in `proxy.ts`; pages read the session only inside `<Suspense>` | Required by `cacheComponents`; keeps auth pages static |

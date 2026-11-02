@@ -10,17 +10,19 @@
 ```
 src/
   app/                 # routes (App Router)
-    (auth)/            # planned: login, register, forgot-password, reset-password
-    auth/confirm/      # planned: email link handler (route handler)
-    dashboard/         # planned: protected area
+    (auth)/            # login, register, forgot-password, reset-password + actions.ts (server actions)
+    auth/confirm/      # email link handler: verifyOtp(token_hash) or exchangeCodeForSession(code)
+    dashboard/         # protected placeholder ("Signed in as …" + log out)
     globals.css        # theme tokens
     icon.png           # favicon from the logo
   components/
+    auth/              # auth forms (client components using useActionState)
     ui/                # shadcn components (generated, editable)
   lib/
     utils.ts           # cn()
-    supabase/          # planned: client.ts (browser), server.ts (server), proxy.ts (session refresh)
-  proxy.ts             # planned: session refresh + route protection
+    supabase/          # server.ts (server client), proxy.ts (session refresh)
+    auth/              # friendly error messages, origin + safe redirect helpers
+  proxy.ts             # session refresh + route protection
 public/brand/          # logo
 docs/                  # these docs
 supabase/              # Supabase CLI: config.toml (local stack) + migrations/
@@ -63,4 +65,29 @@ flowchart LR
     GH -. later: nightly .-> BK[pg_dump to storage I control]
     HB --> SB
     BK --> SB
+```
+
+## Auth routing (proxy.ts)
+| Path | Signed out | Signed in |
+|---|---|---|
+| `/` | → `/login` | → `/dashboard` |
+| `/login`, `/register`, `/forgot-password` | show | → `/dashboard` |
+| `/dashboard/*`, `/reset-password` | → `/login` | show |
+| `/auth/confirm` | verifies the email link, then → `next` (relative paths only) or `/login?error=link_invalid` | same |
+
+Email links come back to the origin that sent them (localhost, a deploy preview, or production), via `getOrigin()`. No domain is hard-coded.
+
+```mermaid
+sequenceDiagram
+    participant U as Me
+    participant A as Tora (server action)
+    participant S as Supabase Auth
+    participant M as Inbox
+    U->>A: register / forgot password
+    A->>S: signUp / resetPasswordForEmail (redirect = origin/auth/confirm?next=…)
+    S->>M: email with link
+    M->>U: click link
+    U->>A: GET /auth/confirm?token_hash=…&type=…&next=…
+    A->>S: verifyOtp → session cookies
+    A-->>U: redirect to /dashboard or /reset-password
 ```
