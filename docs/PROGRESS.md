@@ -2,6 +2,25 @@
 
 Newest session at the top. Each entry has: done, next, open questions.
 
+## ▶ Start here (state at end of 2026-11-02)
+
+**Phases A–E are done.** The repo is public (`master`). Netlify deploys on push to a custom domain. Supabase (Singapore) has email + password auth with **sign-ups off**, a confirmed owner account, and the `heartbeat` table. Auth UI is live: login (with show-password), forgot/reset password, invite-only `/register`, placeholder `/dashboard`, protected by `proxy.ts`.
+
+**Next (in suggested order)**
+1. Confirm **IDR** as the default currency (blocks the schema).
+2. App shell: shadcn `dashboard-01` block (sidebar + header), restyled with Tora tokens. Replace the placeholder dashboard.
+3. Schema v1 (ask the owner first): accounts, categories, transactions, with RLS on `auth.uid()`, amounts as integers/`numeric`.
+4. Manual transaction entry (UC5), then budgets (UC6).
+5. Custom SMTP (Resend suggested) → `token_hash` email templates → invite flow for friends (set-password step).
+6. Keep-alive + nightly backup workflows. First decide how to handle the **60-day public-repo cron rule** (separate private repo vs. manual re-enable vs. external cron).
+7. Later: reports/charts, recurring items, net worth, CSV import, mobile app.
+
+**Open questions**
+- IDR as the default currency? Multi-currency ever needed?
+- Keep-alive host (see item 6).
+- Optimize the 1.2 MB logo PNG (and add an SVG?).
+- The chart palette is single-hue green; categorical charts may need extra hues.
+
 ## 2026-11-02: Session 1c (Phase E, auth)
 
 **Done**
@@ -19,7 +38,7 @@ Newest session at the top. Each entry has: done, next, open questions.
 - Added a show/hide password toggle (login + reset).
 - Fixed the "Blocking Route: Date.now() while prerendering" warning on `/dashboard` with `await connection()`.
 - **Invites for friends (later):** needs (1) custom SMTP, because built-in email only reaches project team members, (2) an Invite template with `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=invite`, or a `/auth/confirm` change to handle the default invite link, and (3) a "set your password" step after the invite link (reuse `/reset-password`).
-- Test the auth flow on production after pushing.
+- ✅ Production tested by the owner: redirects, login with password toggle, dashboard without warnings, log out, invite-only `/register`. **Phase E is done.**
 - Then: `dashboard-01` shell, and confirm IDR before the schema.
 
 ## 2026-11-02: Session 1b (Phase B)

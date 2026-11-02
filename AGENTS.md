@@ -14,7 +14,7 @@ This is the canonical instruction file. `CLAUDE.md` only imports it. Read `docs/
 
 ## Project summary
 
-Tora ("tiger" in Sumatra) is a **single-user personal finance tracker** (accounts, transactions, categories, budgets, recurring items, net worth, reports). The owner is in Indonesia, so data entry is **manual first, CSV import later**. There's no landing page: the first screen is `/login`. Feature ideas come from Monarch Money, but **branding, UI, and copy must be original**.
+Tora ("tiger" in Sumatra) is an **invite-only personal finance tracker** (the owner now, maybe a few invited friends later; each user sees only their own data) for accounts, transactions, categories, budgets, recurring items, net worth, and reports. Public sign-up is off. The owner is in Indonesia, so data entry is **manual first, CSV import later**. There's no landing page: the first screen is `/login`. Feature ideas come from Monarch Money, but **branding, UI, and copy must be original**.
 
 More detail is in `docs/` (start at `docs/README.md`).
 
