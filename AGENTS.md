@@ -49,6 +49,8 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - The logo is `public/brand/tora-logo.png`, and the favicon is `src/app/icon.png`.
 - Money: store amounts as integers in minor units, or as `numeric`. Never use floats. Default currency is IDR (not confirmed yet; ask the owner before putting it in the schema).
 - In Server Components, call `await connection()` (from `next/server`) before Supabase session or data calls. Supabase uses `Date.now()`, which `cacheComponents` forbids during prerendering. Read request-time data inside `<Suspense>`.
+- New signed-in pages go in `src/app/(app)/<section>/` (sidebar shell) and are private by default (`proxy.ts` only lets `PUBLIC` paths through). Add nav entries in `src/components/app/nav.ts`.
+- Show money with `formatMoney()` from `src/lib/money.ts`. Don't format numbers by hand.
 - Keep the app portable. Don't use Netlify-only APIs in app code, because a move to Cloud Run is possible.
 - Docs and code comments are in English.
 - Keep commits small and meaningful. The default branch is `master`.

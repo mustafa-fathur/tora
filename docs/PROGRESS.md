@@ -7,8 +7,10 @@ Newest session at the top. Each entry has: done, next, open questions.
 **Phases A–E are done.** The repo is public (`master`). Netlify deploys on push to a custom domain. Supabase (Singapore) has email + password auth with **sign-ups off**, a confirmed owner account, and the `heartbeat` table. Auth UI is live: login (with show-password), forgot/reset password, invite-only `/register`, placeholder `/dashboard`, protected by `proxy.ts`.
 
 **Next**: follow the phases in `docs/PRD.md`. Currently **Phase F**:
-1. Schema v1 migration `20261102143959_core_schema.sql` is written and tested in PGlite (RLS isolation, constraints, seeding, balances). **Waiting for the owner's approval before `db push`.**
-2. App shell (shadcn sidebar), nav for all sections, money formatting helper.
+1. ✅ Schema v1 (`20261102143959_core_schema.sql`) tested in PGlite, then **applied** with the owner's approval. Hosted DB: 1 profile, 51 default categories, 14 currencies. Anon gets 401 on all user tables and the view.
+2. ✅ App shell: shadcn sidebar (collapsible, mobile sheet), header with page title, user email + log out in the sidebar footer, "coming soon" pages for every section. `proxy.ts` is default-deny. `formatMoney()` helper.
+3. ⏳ The owner checks the shell locally and on production.
+4. Next: **Phase G**: accounts CRUD, categories in Settings, transactions (add/edit/delete, transfers, filters).
 
 **Open questions**
 - ✅ IDR is the default; 14 curated currencies (see DECISIONS).

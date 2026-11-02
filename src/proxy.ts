@@ -4,8 +4,8 @@ import { updateSession } from "@/lib/supabase/proxy";
 
 // Pages only for signed-out users.
 const GUEST_ONLY = ["/login", "/register", "/forgot-password"];
-// Pages that need a session. /reset-password gets one from the email link.
-const PROTECTED = ["/dashboard", "/reset-password"];
+// Reachable without a session. Everything else needs one.
+const PUBLIC = [...GUEST_ONLY, "/auth"];
 
 const matches = (pathname: string, routes: string[]) =>
   routes.some((r) => pathname === r || pathname.startsWith(`${r}/`));
@@ -23,7 +23,7 @@ export async function proxy(request: NextRequest) {
   };
 
   if (pathname === "/") return redirectTo(signedIn ? "/dashboard" : "/login");
-  if (!signedIn && matches(pathname, PROTECTED)) return redirectTo("/login");
+  if (!signedIn && !matches(pathname, PUBLIC)) return redirectTo("/login");
   if (signedIn && matches(pathname, GUEST_ONLY)) return redirectTo("/dashboard");
 
   return response;

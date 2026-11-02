@@ -12,14 +12,17 @@ src/
   app/                 # routes (App Router)
     (auth)/            # login, register, forgot-password, reset-password + actions.ts (server actions)
     auth/confirm/      # email link handler: verifyOtp(token_hash) or exchangeCodeForSession(code)
-    dashboard/         # protected placeholder ("Signed in as …" + log out)
+    (app)/             # signed-in area: sidebar shell (layout.tsx) + dashboard, accounts, transactions,
+                       # cash-flow, budgets, recurring, goals, reports, settings
     globals.css        # theme tokens
     icon.png           # favicon from the logo
   components/
+    app/               # shell: sidebar, header, nav config, sidebar user/log out, coming-soon
     auth/              # auth forms (client components using useActionState)
     ui/                # shadcn components (generated, editable)
   lib/
     utils.ts           # cn()
+    money.ts           # formatMoney(amount, currency): Intl, id-ID style
     supabase/          # server.ts (server client), proxy.ts (session refresh)
     auth/              # friendly error messages, origin + safe redirect helpers
   proxy.ts             # session refresh + route protection
@@ -72,8 +75,8 @@ flowchart LR
 |---|---|---|
 | `/` | → `/login` | → `/dashboard` |
 | `/login`, `/register`, `/forgot-password` | show | → `/dashboard` |
-| `/dashboard/*`, `/reset-password` | → `/login` | show |
-| `/auth/confirm` | verifies the email link, then → `next` (relative paths only) or `/login?error=link_invalid` | same |
+| everything else (app pages, `/reset-password`, unknown paths) | → `/login` | show |
+| `/auth/*` (public) e.g. `/auth/confirm` | verifies the email link, then → `next` (relative paths only) or `/login?error=link_invalid` | same |
 
 Email links come back to the origin that sent them (localhost, a deploy preview, or production), via `getOrigin()`. No domain is hard-coded.
 

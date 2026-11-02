@@ -27,3 +27,6 @@
 | 2026-11-02 | Composite FKs `(x_id, user_id)` on all cross-table references | Stops rows from pointing at another user's data, alongside RLS |
 | 2026-11-02 | Keep-alive + backups in a separate **private** `tora-ops` repo (Phase H, before real data piles up) | Avoids the 60-day public-repo cron rule; backup logs stay private |
 | 2026-11-02 | Custom SMTP and friend invites moved to the last phase | The owner's own email works with Supabase's built-in email |
+| 2026-11-02 | `proxy.ts` is default-deny: only `PUBLIC` paths work without a session | New pages are private automatically |
+| 2026-11-02 | App shell = shadcn `sidebar` only (not the full dashboard-01 block); collapsible to icons, sheet on mobile | Lean; charts and tables are added when a feature needs them |
+| 2026-11-02 | Money display uses the `id-ID` number style (Rp 1.250.000, US$10,50) with English UI copy | Familiar separators for an Indonesian user |
