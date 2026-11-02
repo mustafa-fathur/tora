@@ -2,31 +2,33 @@
 
 Newest session at the top. Each entry has: done, next, open questions.
 
-## ▶ Start here (state at end of 2026-11-02)
+## ▶ Start here (state at end of 2026-11-03)
 
-**Phases A–E are done.** The repo is public (`master`). Netlify deploys on push to a custom domain. Supabase (Singapore) has email + password auth with **sign-ups off**, a confirmed owner account, and the `heartbeat` table. Auth UI is live: login (with show-password), forgot/reset password, invite-only `/register`, placeholder `/dashboard`, protected by `proxy.ts`.
+**All product features are built and tested** (phases A–G, I–M, PWA). The hosted DB has 4 migrations applied. Tests: 66 unit/database tests (`npm test`, also in CI) + 16 browser E2E steps (`npm run test:e2e`, local Supabase).
 
-**Next**: follow the phases in `docs/PRD.md`. Currently **Phase F**:
-1. ✅ Schema v1 (`20261102143959_core_schema.sql`) tested in PGlite, then **applied** with the owner's approval. Hosted DB: 1 profile, 51 default categories, 14 currencies. Anon gets 401 on all user tables and the view.
-2. ✅ App shell: shadcn sidebar (collapsible, mobile sheet), header with page title, user email + log out in the sidebar footer, "coming soon" pages for every section. `proxy.ts` is default-deny. `formatMoney()` helper.
-3. ✅ The owner reviewed the shell locally ("beautiful and clean"). Header pattern decided (see DECISIONS).
-4. **Phase G** (built, waiting for the owner's test):
-   - Accounts: add/edit, update balance (records an adjustment), archive, delete (with confirm), net worth summary (IDR; foreign currencies listed separately).
-   - Transactions: "Add transaction" in the top bar on every page. Expense / income / transfer, refunds, cross-currency transfers (amount received), edit, delete (transfers delete both legs). Month view grouped by day, filters (account, category or group, search), income/spending/net summary.
-   - Settings → Categories: add/rename groups (with emoji) and categories, delete (transactions become uncategorized).
-   - Typed Supabase client (`npm run db:types`).
-   - Not tested in a browser by the agent (no session, and headless Chromium is missing system libraries); build, types and lint pass.
-5. Owner feedback on Phase G: everything works. Follow-ups done:
-   - **Account types** are now manageable in Settings (tabs: Categories | Account types), with migration `20261102160513` applied after a local data dump. The owner's 2 accounts were moved to their matching types.
-   - **Time** on transactions (optional, defaults to now).
-   - **Tests + CI**: 29 tests (`npm test`) and `.github/workflows/ci.yml`.
-6. Next: **Phase H** (ops: keep-alive + backups in the private `tora-ops` repo), then **Phase I** (dashboard, cash flow, budgets).
+**Next (in order)**
+1. **Phase H: backups + keep-alive** (private `tora-ops` repo). Do this before entering lots of real data: the free tier has no backups.
+2. The owner tests the new features on production with real use, and reports anything odd.
+3. Later: custom SMTP + friend invites; optional AI advice; investment holdings; historical FX rates; offline support; native app.
 
 **Open questions**
-- ✅ IDR is the default; 14 curated currencies (see DECISIONS).
-- Backup destination for Phase H (private repo artifacts vs. Google Drive vs. R2): decide then.
+- Backup destination for Phase H (private repo artifacts vs. Google Drive vs. Cloudflare R2).
 - Optimize the 1.2 MB logo PNG (and add an SVG?).
-- The chart palette is single-hue green; categorical charts may need extra hues.
+
+## 2026-11-03: Session 2 (phases I–M)
+
+**Done**
+- Migration `20261102164321_exchange_rates_and_imports.sql` (exchange_rates table, transactions.import_id), tested locally, then applied after a local data dump.
+- **Dashboard:** net worth, this month's income/spending/net, net worth chart, insights, budgets, upcoming bills, spending by category, recent transactions, goals.
+- **Cash flow:** 12-month income vs spending chart, savings rate, income/spending by category (links to filtered transactions).
+- **Budgets:** per group or category per month, roll-up, ok/warning/over status, copy last month, quiet categories folded away.
+- **Recurring:** add/edit, mark paid (creates the transaction, advances the date), skip, pause, monthly fixed-cost estimate.
+- **Goals:** manual (add/take out money) or linked to an account balance; months-to-target saving suggestion.
+- **Reports:** 3/6/12 months: net worth history, spending by category, month-by-month table, insights.
+- **Exchange rates** (Settings): manual or "Fetch today's rates"; all totals convert foreign accounts.
+- **CSV import:** column guessing (English + Indonesian), date/amount formats (DB/CR, both number styles), preview, duplicate skipping, categories learned from past descriptions, review + undo. "Uncategorized" filter on Transactions.
+- **PWA:** manifest + icons (Add to Home Screen).
+- Tests: unit tests for all money logic and CSV parsing; DB tests for the new tables; Playwright E2E journey on the local Supabase stack (16/16 passing, no browser errors). Visual check by screenshots (desktop + 390px phone); fixed a dialog overflow on phones and noisy budget rows.
 
 ## 2026-11-02: Session 1c (Phase E, auth)
 

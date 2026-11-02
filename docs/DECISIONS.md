@@ -35,3 +35,9 @@
 | 2026-11-02 | Optional `time` on transactions, defaulting to the current time on entry | Orders spending within a day without making the time mandatory |
 | 2026-11-02 | Testing: Vitest unit tests + PGlite database tests + GitHub Actions CI (lint, typecheck, test, build). No E2E yet | Catches money-math and RLS regressions cheaply; light enough for a one-person project |
 | 2026-11-02 | Before data-changing migrations, dump the hosted data locally (`supabase db dump --data-only`, outside the repo) | No automatic backups on the free tier until Phase H |
+| 2026-11-03 | Built phases I–M (and the PWA part of N) before H, at the owner's request | Owner wanted all features first; backups (H) are the top remaining item |
+| 2026-11-03 | Exchange rates: user-scoped latest rate per currency; manual or fetched from open.er-api.com (free, no key) | Simple and covers all 14 currencies (incl. SAR/AED); historical rates not needed yet |
+| 2026-11-03 | Money logic lives in pure functions in `src/lib/finance/*` (cash flow, budgets, recurring, net worth, insights, CSV) | Unit-testable without a browser or database |
+| 2026-11-03 | E2E: Playwright against the **local** Supabase stack (Docker), one serial journey spec, run locally with `npm run test:e2e` (not in CI) | Real end-to-end confidence without touching the hosted project or adding CI complexity |
+| 2026-11-03 | Insights are rule-based (spending pace vs last month, biggest increase, over budget, savings rate, upcoming bills, uncategorized) | Useful "advice" with no AI cost or data leaving Supabase |
+| 2026-11-03 | Semantic chart colors: income = brand green, spending = warm coral (`--chart-income`, `--chart-expense`) | Money in vs out must be distinguishable at a glance |

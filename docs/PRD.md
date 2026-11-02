@@ -35,13 +35,14 @@ Me, in Indonesia. Later, possibly **a few invited friends** (invite-only, each s
 | Phase | Scope | Status |
 |---|---|---|
 | A–E | Docs, theme, GitHub, Supabase, Netlify, auth | ✅ |
-| F | Schema v1 (`docs/DATA-MODEL.md`), app shell (sidebar nav), money formatting | ✅ |
-| G | Accounts, categories, transactions (incl. transfers): **daily use starts here** | built, owner test pending |
-| H | Ops: private `tora-ops` repo with keep-alive + encrypted nightly backups | |
-| I | Dashboard, cash flow, budgets | |
-| J | Recurring items, goals | |
-| K | Reports, net worth history, rule-based insights | |
-| L | Currency conversion (FX rates), investment holdings | |
-| M | CSV import | |
-| N | Installable PWA for phone, custom SMTP + friend invites, optional AI advice | |
-| Later | Native mobile app (Expo) | |
+| F | Schema v1, app shell, money formatting | ✅ |
+| G | Accounts, account types, categories, transactions (time, transfers, refunds) | ✅ |
+| I | Dashboard, cash flow, budgets | ✅ (built ahead of H at the owner's request) |
+| J | Recurring items (mark paid / skip), goals | ✅ |
+| K | Reports (net worth history, trends), rule-based insights | ✅ |
+| L | Currency conversion (manual or fetched rates) | ✅; investment holdings: later |
+| M | CSV import (column mapping, duplicates, undo, learned categories) | ✅ |
+| N (part) | Installable PWA (manifest + icons) | ✅ |
+| **H** | **Ops: private `tora-ops` repo with keep-alive + encrypted nightly backups** | ⏳ **next, before relying on Tora daily** |
+| N (rest) | Custom SMTP + friend invites, optional AI advice | later |
+| Later | Native mobile app (Expo), offline support | |

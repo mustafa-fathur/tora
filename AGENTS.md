@@ -14,7 +14,7 @@ This is the canonical instruction file. `CLAUDE.md` only imports it. Read `docs/
 
 ## Project summary
 
-Tora ("tiger" in Sumatra) is an **invite-only personal finance tracker** (the owner now, maybe a few invited friends later; each user sees only their own data) for accounts, transactions, categories, budgets, recurring items, net worth, and reports. Public sign-up is off. The owner is in Indonesia, so data entry is **manual first, CSV import later**. There's no landing page: the first screen is `/login`. Feature ideas come from Monarch Money, but **branding, UI, and copy must be original**.
+Tora ("tiger" in Sumatra) is an **invite-only personal finance tracker** with dashboard, accounts, transactions, cash flow, budgets, recurring, goals, reports, insights, multi-currency and CSV import. It is (the owner now, maybe a few invited friends later; each user sees only their own data) for accounts, transactions, categories, budgets, recurring items, net worth, and reports. Public sign-up is off. The owner is in Indonesia, so data entry is **manual first, CSV import later**. There's no landing page: the first screen is `/login`. Feature ideas come from Monarch Money, but **branding, UI, and copy must be original**.
 
 More detail is in `docs/` (start at `docs/README.md`).
 
@@ -36,6 +36,7 @@ npm run build    # production build + type check
 npm run lint     # eslint
 npm run typecheck
 npm test         # Vitest: unit tests + database tests (migrations + RLS in PGlite)
+npx supabase start && npm run test:e2e   # Playwright E2E against the LOCAL Supabase (Docker); then: npx supabase stop
 npx shadcn@latest add <component>   # add shadcn components/blocks
 npm exec -- supabase migration new <name>   # new SQL migration in supabase/migrations
 npm exec -- supabase db push --linked --dry-run   # preview pending migrations
@@ -53,7 +54,8 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - In Server Components, call `await connection()` (from `next/server`) before Supabase session or data calls. Supabase uses `Date.now()`, which `cacheComponents` forbids during prerendering. Read request-time data inside `<Suspense>`.
 - New signed-in pages go in `src/app/(app)/<section>/` (sidebar shell) and are private by default (`proxy.ts` only lets `PUBLIC` paths through). Add nav entries in `src/components/app/nav.ts`.
 - **Data:** reads go through `src/lib/data/queries.ts` (wrapped in `cache()`, call `connection()`). Writes are server actions in `src/app/(app)/<section>/actions.ts` that validate input, return `ActionState`, and call `refresh()` from `next/cache`. RLS does the authorization.
-- **Tests** (keep them light): unit tests for pure helpers in `tests/unit/`; database tests in `tests/db/` run every migration in PGlite with a stubbed `auth` schema. A new table needs an RLS isolation check there. CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and build on every push and PR. No browser E2E for now.
+- **Tests** (keep them light): unit tests for pure helpers in `tests/unit/`; database tests in `tests/db/` run every migration in PGlite with a stubbed `auth` schema. A new table needs an RLS isolation check there. CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and build on every push and PR. Browser E2E (`tests/e2e/tora.spec.ts`, one serial journey through every feature) runs locally only, against the local Supabase stack; it refuses to run against a non-local URL. Extend it when you add a feature. On WSL without Chromium system libs, unpack `libnspr4 libnss3 libasound2t64` with `apt-get download` + `dpkg-deb -x` and set `LD_LIBRARY_PATH`.
+- Keep money math in pure functions in `src/lib/finance/` with unit tests; pages only fetch and render.
 - After each migration, run `npm run db:types` to regenerate `src/lib/supabase/database.types.ts`.
 - Parse typed amounts with `parseAmount()` (Indonesian style: `1.250.000`, `10,50`).
 - Show money with `formatMoney()` from `src/lib/money.ts`. Don't format numbers by hand.

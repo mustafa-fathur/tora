@@ -15,6 +15,7 @@ erDiagram
     categories ||--o{ recurring_items : ""
     recurring_items ||--o{ transactions : "creates"
     accounts ||--o{ goals : "funds"
+    currencies ||--o{ exchange_rates : "priced in IDR"
 ```
 
 ## Rules
@@ -31,10 +32,11 @@ erDiagram
 - **Budgets:** one amount per category per month (`month` = first day of the month), in the base currency.
 - **Recurring items:** expected signed amount, frequency (`daily`, `weekly`, `monthly`, `yearly`) × `interval_count`, and `next_due_date`.
 - **Goals:** a target amount and optional date. Progress = the linked account's balance, or `saved_amount` if no account is linked.
+- **Exchange rates:** one latest rate per foreign currency per user (`1 CODE = rate IDR`), typed by hand or fetched from open.er-api.com. Totals (net worth, cash flow, budgets) convert with today's rate; currencies without a rate are left out and flagged in the UI.
+- **CSV imports:** imported rows share an `import_id`, so an import can be reviewed or undone at once. Duplicates (same account, date, amount, description) are skipped by default.
 - **Profiles:** one per user (base currency `IDR`, timezone `Asia/Jakarta`), created by a trigger on sign-up.
 
-## Not yet (planned)
-- `exchange_rates` for converting to the base currency (FX phase)
+## Not yet (ideas)
+- Historical exchange rates (today's rate is used for every month)
 - Investment holdings (ticker, units, price)
-- CSV import batches (`import_id` on transactions)
-- Tags, attachments (Supabase Storage)
+- Tags, attachments (Supabase Storage), split transactions
