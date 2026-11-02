@@ -9,8 +9,11 @@ Newest session at the top. Each entry has: done, next, open questions.
 - Scanned the full history for secrets: clean. Secret scanning and push protection are enabled on the repo.
 - Wrote the public-repo rules into `AGENTS.md`, added `.gitignore` guards for backups, dumps, and data folders, and updated DECISIONS and ARCHITECTURE.
 
+- Phase C: the owner created Supabase project `tora` (Singapore, free plan) and turned on email + password auth (confirm email on, secure email change on, min password length 10).
+- Switched local dev to port **5000**.
+
 **Next**
-- Phase C: Supabase project.
+- Phase C: Site URL = `http://localhost:5000`, redirect URL `http://localhost:5000/**`, then `.env.local`, then the `heartbeat` table.
 
 **Open questions**
 - **Keep-alive vs. the 60-day rule:** GitHub disables scheduled workflows in public repos after 60 days without repo activity. Options: (a) put the cron workflows in a small separate **private** repo, (b) re-enable the workflow manually when GitHub emails a warning, (c) use an external cron service. Decide before building the keep-alive job.

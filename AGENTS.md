@@ -31,7 +31,7 @@ More detail is in `docs/` (start at `docs/README.md`).
 ## Commands
 
 ```bash
-npm run dev      # http://localhost:3000
+npm run dev      # http://localhost:5000
 npm run build    # production build + type check
 npm run lint     # eslint
 npx shadcn@latest add <component>   # add shadcn components/blocks
