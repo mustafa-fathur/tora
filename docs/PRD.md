@@ -35,8 +35,8 @@ Me, in Indonesia. Later, possibly **a few invited friends** (invite-only, each s
 | Phase | Scope | Status |
 |---|---|---|
 | A–E | Docs, theme, GitHub, Supabase, Netlify, auth | ✅ |
-| F | Schema v1 (`docs/DATA-MODEL.md`), app shell (sidebar nav), money formatting | ✅ (owner check pending) |
-| G | Accounts, categories, transactions (incl. transfers): **daily use starts here** | |
+| F | Schema v1 (`docs/DATA-MODEL.md`), app shell (sidebar nav), money formatting | ✅ |
+| G | Accounts, categories, transactions (incl. transfers): **daily use starts here** | built, owner test pending |
 | H | Ops: private `tora-ops` repo with keep-alive + encrypted nightly backups | |
 | I | Dashboard, cash flow, budgets | |
 | J | Recurring items, goals | |

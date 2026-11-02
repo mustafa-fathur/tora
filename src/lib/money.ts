@@ -21,3 +21,26 @@ export function formatMoney(
     signDisplay: signed ? "exceptZero" : "auto",
   }).format(Number(amount));
 }
+
+export const currencyDecimals = (currency: string) => DECIMALS[currency] ?? 2;
+
+const MAX_AMOUNT = 9_999_999_999_999_999; // numeric(18,2)
+
+// Parses what people type: "1.250.000", "1250000", "10,50", "10.50", "Rp 45.000".
+// Indonesian style: "." groups thousands, "," is the decimal mark. Without a comma,
+// a single "." followed by 1–2 digits is treated as a decimal point (10.50).
+// Returns a positive number, or null if it isn't a valid amount.
+export function parseAmount(input: string, currency = "IDR"): number | null {
+  let s = input.replace(/[^\d.,]/g, "");
+  if (!s) return null;
+  if (s.includes(",")) {
+    s = s.replace(/\./g, "").replace(",", ".");
+  } else if (!/^\d+\.\d{1,2}$/.test(s)) {
+    s = s.replace(/\./g, "");
+  }
+  if (!/^\d+(\.\d+)?$/.test(s)) return null;
+  const digits = currencyDecimals(currency);
+  const factor = 10 ** digits;
+  const value = Math.round(Number(s) * factor) / factor;
+  return value > 0 && value <= MAX_AMOUNT ? value : null;
+}

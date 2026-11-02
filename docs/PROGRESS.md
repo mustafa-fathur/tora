@@ -10,7 +10,13 @@ Newest session at the top. Each entry has: done, next, open questions.
 1. ✅ Schema v1 (`20261102143959_core_schema.sql`) tested in PGlite, then **applied** with the owner's approval. Hosted DB: 1 profile, 51 default categories, 14 currencies. Anon gets 401 on all user tables and the view.
 2. ✅ App shell: shadcn sidebar (collapsible, mobile sheet), header with page title, user email + log out in the sidebar footer, "coming soon" pages for every section. `proxy.ts` is default-deny. `formatMoney()` helper.
 3. ✅ The owner reviewed the shell locally ("beautiful and clean"). Header pattern decided (see DECISIONS).
-4. Next: **Phase G**: accounts CRUD, categories in Settings, transactions (add/edit/delete, transfers, filters).
+4. **Phase G** (built, waiting for the owner's test):
+   - Accounts: add/edit, update balance (records an adjustment), archive, delete (with confirm), net worth summary (IDR; foreign currencies listed separately).
+   - Transactions: "Add transaction" in the top bar on every page. Expense / income / transfer, refunds, cross-currency transfers (amount received), edit, delete (transfers delete both legs). Month view grouped by day, filters (account, category or group, search), income/spending/net summary.
+   - Settings → Categories: add/rename groups (with emoji) and categories, delete (transactions become uncategorized).
+   - Typed Supabase client (`npm run db:types`).
+   - Not tested in a browser by the agent (no session, and headless Chromium is missing system libraries); build, types and lint pass.
+5. Next: **Phase H** (ops: keep-alive + backups in the private `tora-ops` repo), then **Phase I** (dashboard, cash flow, budgets).
 
 **Open questions**
 - ✅ IDR is the default; 14 curated currencies (see DECISIONS).

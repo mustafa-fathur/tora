@@ -17,12 +17,15 @@ src/
     globals.css        # theme tokens
     icon.png           # favicon from the logo
   components/
-    app/               # shell: sidebar, header, nav config, sidebar user/log out, coming-soon
+    app/               # shell: sidebar, header, nav, confirm dialog, form helpers
+    accounts/ transactions/ settings/   # feature components (dialogs, lists, filters)
     auth/              # auth forms (client components using useActionState)
     ui/                # shadcn components (generated, editable)
   lib/
     utils.ts           # cn()
-    money.ts           # formatMoney(amount, currency): Intl, id-ID style
+    money.ts           # formatMoney() / parseAmount(): Intl, id-ID style
+    data/queries.ts    # server-side reads (accounts + balances, categories, transactions)
+    finance/           # types, account type labels, dates (Asia/Jakarta), form helpers
     supabase/          # server.ts (server client), proxy.ts (session refresh)
     auth/              # friendly error messages, origin + safe redirect helpers
   proxy.ts             # session refresh + route protection
