@@ -4,10 +4,10 @@ import { useActionState } from "react";
 
 import { updatePassword, type FormState } from "@/app/(auth)/actions";
 import { FormAlert } from "@/components/auth/form-alert";
+import { PasswordInput } from "@/components/auth/password-input";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth/errors";
 
 const idle: FormState = { status: "idle" };
@@ -29,10 +29,9 @@ export function ResetPasswordForm() {
             )}
             <Field>
               <FieldLabel htmlFor="password">New password</FieldLabel>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 autoComplete="new-password"
                 minLength={MIN_PASSWORD_LENGTH}
                 required
@@ -41,10 +40,9 @@ export function ResetPasswordForm() {
             </Field>
             <Field>
               <FieldLabel htmlFor="confirm-password">Confirm new password</FieldLabel>
-              <Input
+              <PasswordInput
                 id="confirm-password"
                 name="confirm-password"
-                type="password"
                 autoComplete="new-password"
                 minLength={MIN_PASSWORD_LENGTH}
                 required

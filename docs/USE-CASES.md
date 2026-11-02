@@ -1,9 +1,9 @@
 # Use cases
 
-## UC1: Register
-1. I open `/register`, then enter my email and password.
-2. Supabase sends a confirmation email, and the app shows a "Check your inbox" message.
-3. I click the link, which goes to the auth confirm route. The route verifies the token, and I land on `/dashboard`.
+## UC1: Get an account (invite-only)
+1. Public sign-up is off. `/register` only says "Tora is invite-only".
+2. I invite someone from Supabase → Authentication → Users → **Invite user**.
+3. *(Not built yet; needs custom SMTP.)* They click the invite link, which goes to `/auth/confirm?type=invite`, then set a password on a "set password" page, and land on `/dashboard`.
 
 ## UC2: Log in
 1. I open any URL while signed out, and the proxy redirects me to `/login`.

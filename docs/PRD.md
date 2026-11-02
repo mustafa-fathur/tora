@@ -3,11 +3,11 @@
 ## Goal
 A calm, trustworthy personal finance tracker that I (the only user) open every day to see where my money is and where it went.
 
-## User
-Just me, in Indonesia. Indonesian banks aren't covered by bank-sync aggregators, so all data is entered by hand or imported from CSV.
+## Users
+Me, in Indonesia. Later, possibly **a few invited friends** (invite-only, each sees only their own data through RLS). Public sign-up is off. Indonesian banks aren't covered by bank-sync aggregators, so all data is entered by hand or imported from CSV.
 
 ## Features (Monarch Money is the feature inspiration only; all branding, UI, and copy are original)
-- **Auth:** email + password login, register, forgot/reset password.
+- **Auth:** email + password login, forgot/reset password. Invite-only (no public sign-up).
 - **Accounts:** cash, bank, e-wallet, credit card, investment; balances.
 - **Transactions:** manual entry (amount, date, account, category, note); edit and delete.
 - **Categories:** income and expense, editable.
@@ -19,7 +19,7 @@ Just me, in Indonesia. Indonesian banks aren't covered by bank-sync aggregators,
 
 ## Non-goals (for now)
 - Bank sync / aggregators
-- Multi-user, sharing, or households
+- Public sign-up, sharing between users, or households
 - Landing page or marketing site
 - Dark mode
 - Separate backend service (Supabase only)

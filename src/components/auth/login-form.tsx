@@ -5,10 +5,11 @@ import { useActionState, useEffect, useState } from "react";
 
 import { login, resendConfirmation, type FormState } from "@/app/(auth)/actions";
 import { FormAlert } from "@/components/auth/form-alert";
+import { PasswordInput } from "@/components/auth/password-input";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { LINK_ERRORS } from "@/lib/auth/errors";
 
@@ -52,10 +53,9 @@ export function LoginForm() {
                   Forgot password?
                 </Link>
               </div>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 autoComplete="current-password"
                 required
               />
@@ -64,9 +64,6 @@ export function LoginForm() {
               <SubmitButton pending={pending} pendingText="Logging in…">
                 Log in
               </SubmitButton>
-              <FieldDescription className="text-center">
-                New here? <Link href="/register">Create an account</Link>
-              </FieldDescription>
             </Field>
           </FieldGroup>
         </form>

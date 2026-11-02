@@ -28,32 +28,6 @@ export async function login(_: FormState, formData: FormData): Promise<FormState
   redirect("/dashboard");
 }
 
-export async function register(_: FormState, formData: FormData): Promise<FormState> {
-  const email = field(formData, "email");
-  const password = String(formData.get("password") ?? "");
-  const confirm = String(formData.get("confirm-password") ?? "");
-
-  if (password.length < MIN_PASSWORD_LENGTH) {
-    return { status: "error", message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`, email };
-  }
-  if (password !== confirm) {
-    return { status: "error", message: "Passwords don't match.", email };
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { emailRedirectTo: `${await getOrigin()}/auth/confirm?next=/dashboard` },
-  });
-  if (error) {
-    return { status: "error", message: authErrorMessage(error), code: error.code, email };
-  }
-  // When the email is already registered, Supabase doesn't say so (to avoid leaking
-  // which emails exist), so the success message covers both cases.
-  return { status: "success", email };
-}
-
 export async function resendConfirmation(_: FormState, formData: FormData): Promise<FormState> {
   const email = field(formData, "email");
   const supabase = await createClient();

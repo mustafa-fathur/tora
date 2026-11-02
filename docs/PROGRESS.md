@@ -14,8 +14,12 @@ Newest session at the top. Each entry has: done, next, open questions.
 **Next**
 - Email: **default Supabase email + default templates for now** (owner's choice). Links use the PKCE `code` flow, so they must be opened in the same browser that started the sign-up or reset. Later: set up custom SMTP (Resend suggested, sending from the owner's domain) and then switch templates to `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email|recovery`.
 - ✅ Owner tested locally (port 5000): register → "check inbox" → confirm link → /dashboard → log out. The owner's account now exists.
-- Test forgot → reset password locally, then the whole flow on production.
-- Decide whether to disable public sign-ups once the owner's account exists.
+- ✅ Forgot → reset password tested locally by the owner.
+- ✅ Public sign-ups disabled in Supabase. `/register` is now an invite-only notice; the sign-up form and `register` action are removed.
+- Added a show/hide password toggle (login + reset).
+- Fixed the "Blocking Route: Date.now() while prerendering" warning on `/dashboard` with `await connection()`.
+- **Invites for friends (later):** needs (1) custom SMTP, because built-in email only reaches project team members, (2) an Invite template with `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=invite`, or a `/auth/confirm` change to handle the default invite link, and (3) a "set your password" step after the invite link (reuse `/reset-password`).
+- Test the auth flow on production after pushing.
 - Then: `dashboard-01` shell, and confirm IDR before the schema.
 
 ## 2026-11-02: Session 1b (Phase B)

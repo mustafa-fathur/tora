@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { logout } from "@/app/(auth)/actions";
@@ -27,6 +28,9 @@ export default function DashboardPage() {
 
 // Reads the session cookie (request-time data), so it renders inside Suspense.
 async function SignedInAs() {
+  // Run only at request time: Supabase checks token expiry with Date.now(),
+  // which isn't allowed while Next.js prerenders (cacheComponents).
+  await connection();
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   return (

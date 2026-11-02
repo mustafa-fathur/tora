@@ -19,3 +19,5 @@
 | 2026-11-02 | Auth via server actions + `useActionState` (no browser Supabase client yet) | Auth logic stays on the server; forms work without client-side Supabase; pending and error states come for free |
 | 2026-11-02 | Email links use `token_hash` templates → `/auth/confirm` (PKCE `code` also handled) | Works even if the link is opened on another device or browser; recommended by the Supabase SSR guide |
 | 2026-11-02 | Signed-in/out redirects live in `proxy.ts`; pages read the session only inside `<Suspense>` | Required by `cacheComponents`; keeps auth pages static |
+| 2026-11-02 | Public sign-ups **off**; Tora is invite-only. `/register` shows an "invite-only" notice; sign-up form and action removed (they remain in git history) | Only the owner (and later a few friends) should have accounts; invites via the Supabase dashboard |
+| 2026-11-02 | Show/hide toggle on password fields (login, reset) | Owner wants to check what they typed |
