@@ -58,6 +58,7 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 
 ## Never do
 
+- Never commit real deployment identifiers: production domain, Netlify project name, Supabase project ref, or similar. They may change, and the repo is public. Use placeholders (`<prod-domain>`, `<netlify-project>`, `<project-ref>`) in docs. In code, read them from env vars. Ask the owner for the actual values.
 - Never commit real financial data: bank statements, CSV exports, `pg_dump` backups, screenshots with real balances, or seed files built from real transactions. Use clearly fake fixtures.
 - Never print secrets or data in GitHub Actions (no `echo` of env vars, no dump uploaded as an artifact). Backups go to storage the owner controls, encrypted.
 - Never commit `.env.local` or any real key. Only `.env.example` (placeholders) is committed.

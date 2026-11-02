@@ -14,10 +14,12 @@ Newest session at the top. Each entry has: done, next, open questions.
 - Set Supabase Site URL `http://localhost:5000` and redirect URL `http://localhost:5000/**`. `.env.local` is filled in and verified against `/auth/v1/settings` (HTTP 200, confirmations required).
 - Added the Supabase CLI and ran `supabase init`. `config.toml` auth settings are aligned with the dashboard (port 5000, min password length 10, confirmations on).
 - Migration `20261102090116_create_heartbeat.sql`: one-row table, RLS on, `anon` SELECT only. **Applied** to the hosted project. Verified with the publishable key: read 200, insert/update/delete 401 (`42501`), and the row is unchanged.
-- The CLI is logged in and linked to project ref `ygzesahjkipybyxhvuik`. `supabase login` needs a real terminal; it fails with `!` in Claude Code (non-TTY).
+- The CLI is logged in and linked to the hosted project. `supabase login` needs a real terminal; it fails with `!` in Claude Code (non-TTY).
+
+- Phase D: the owner imported the repo into Netlify (branch `master`, `npm run build`, publish `.next`, the two `NEXT_PUBLIC_*` env vars not marked secret). The first deploy succeeded, and production runs on a custom domain. Actual domain and project name are intentionally not recorded here (see AGENTS.md).
 
 **Next**
-- Phase C is done. Next is Phase D: Netlify deploy, then add the prod and deploy-preview URLs to Supabase redirect URLs (and `site_url`).
+- Phase D: add `https://<prod-domain>/**` and `https://deploy-preview-*--<netlify-project>.netlify.app/**` to Supabase redirect URLs, and set Site URL to production.
 
 **Open questions**
 - **Keep-alive vs. the 60-day rule:** GitHub disables scheduled workflows in public repos after 60 days without repo activity. Options: (a) put the cron workflows in a small separate **private** repo, (b) re-enable the workflow manually when GitHub emails a warning, (c) use an external cron service. Decide before building the keep-alive job.
