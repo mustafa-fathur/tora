@@ -30,3 +30,4 @@
 | 2026-11-02 | `proxy.ts` is default-deny: only `PUBLIC` paths work without a session | New pages are private automatically |
 | 2026-11-02 | App shell = shadcn `sidebar` only (not the full dashboard-01 block); collapsible to icons, sheet on mobile | Lean; charts and tables are added when a feature needs them |
 | 2026-11-02 | Money display uses the `id-ID` number style (Rp 1.250.000, US$10,50) with English UI copy | Familiar separators for an Indonesian user |
+| 2026-11-02 | Top bar = sidebar toggle + page title + **global** actions (e.g. "Add transaction", from Phase G). Page-specific controls (month picker, filters, "Add account") sit in a header row inside the page content | One quick-add button reachable from everywhere; page controls stay next to the content they change |

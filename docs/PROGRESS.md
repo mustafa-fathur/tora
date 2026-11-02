@@ -9,7 +9,7 @@ Newest session at the top. Each entry has: done, next, open questions.
 **Next**: follow the phases in `docs/PRD.md`. Currently **Phase F**:
 1. ✅ Schema v1 (`20261102143959_core_schema.sql`) tested in PGlite, then **applied** with the owner's approval. Hosted DB: 1 profile, 51 default categories, 14 currencies. Anon gets 401 on all user tables and the view.
 2. ✅ App shell: shadcn sidebar (collapsible, mobile sheet), header with page title, user email + log out in the sidebar footer, "coming soon" pages for every section. `proxy.ts` is default-deny. `formatMoney()` helper.
-3. ⏳ The owner checks the shell locally and on production.
+3. ✅ The owner reviewed the shell locally ("beautiful and clean"). Header pattern decided (see DECISIONS).
 4. Next: **Phase G**: accounts CRUD, categories in Settings, transactions (add/edit/delete, transfers, filters).
 
 **Open questions**
