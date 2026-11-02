@@ -13,10 +13,11 @@ Newest session at the top. Each entry has: done, next, open questions.
 - Switched local dev to port **5000**.
 - Set Supabase Site URL `http://localhost:5000` and redirect URL `http://localhost:5000/**`. `.env.local` is filled in and verified against `/auth/v1/settings` (HTTP 200, confirmations required).
 - Added the Supabase CLI and ran `supabase init`. `config.toml` auth settings are aligned with the dashboard (port 5000, min password length 10, confirmations on).
-- Migration `20261102090116_create_heartbeat.sql`: one-row table, RLS on, `anon` SELECT only.
+- Migration `20261102090116_create_heartbeat.sql`: one-row table, RLS on, `anon` SELECT only. **Applied** to the hosted project. Verified with the publishable key: read 200, insert/update/delete 401 (`42501`), and the row is unchanged.
+- The CLI is logged in and linked to project ref `ygzesahjkipybyxhvuik`. `supabase login` needs a real terminal; it fails with `!` in Claude Code (non-TTY).
 
 **Next**
-- Phase C: `supabase login` + `supabase link`, `supabase db push`, then verify the heartbeat with the anon key.
+- Phase C is done. Next is Phase D: Netlify deploy, then add the prod and deploy-preview URLs to Supabase redirect URLs (and `site_url`).
 
 **Open questions**
 - **Keep-alive vs. the 60-day rule:** GitHub disables scheduled workflows in public repos after 60 days without repo activity. Options: (a) put the cron workflows in a small separate **private** repo, (b) re-enable the workflow manually when GitHub emails a warning, (c) use an external cron service. Decide before building the keep-alive job.

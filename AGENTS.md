@@ -36,7 +36,8 @@ npm run build    # production build + type check
 npm run lint     # eslint
 npx shadcn@latest add <component>   # add shadcn components/blocks
 npm exec -- supabase migration new <name>   # new SQL migration in supabase/migrations
-npm exec -- supabase db push                # apply pending migrations to the linked project
+npm exec -- supabase db push --linked --dry-run   # preview pending migrations
+npm exec -- supabase db push --linked             # apply them to the hosted project (ask the owner first)
 ```
 
 If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and build again.
