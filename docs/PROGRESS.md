@@ -6,18 +6,13 @@ Newest session at the top. Each entry has: done, next, open questions.
 
 **Phases A–E are done.** The repo is public (`master`). Netlify deploys on push to a custom domain. Supabase (Singapore) has email + password auth with **sign-ups off**, a confirmed owner account, and the `heartbeat` table. Auth UI is live: login (with show-password), forgot/reset password, invite-only `/register`, placeholder `/dashboard`, protected by `proxy.ts`.
 
-**Next (in suggested order)**
-1. Confirm **IDR** as the default currency (blocks the schema).
-2. App shell: shadcn `dashboard-01` block (sidebar + header), restyled with Tora tokens. Replace the placeholder dashboard.
-3. Schema v1 (ask the owner first): accounts, categories, transactions, with RLS on `auth.uid()`, amounts as integers/`numeric`.
-4. Manual transaction entry (UC5), then budgets (UC6).
-5. Custom SMTP (Resend suggested) → `token_hash` email templates → invite flow for friends (set-password step).
-6. Keep-alive + nightly backup workflows. First decide how to handle the **60-day public-repo cron rule** (separate private repo vs. manual re-enable vs. external cron).
-7. Later: reports/charts, recurring items, net worth, CSV import, mobile app.
+**Next**: follow the phases in `docs/PRD.md`. Currently **Phase F**:
+1. Schema v1 migration `20261102143959_core_schema.sql` is written and tested in PGlite (RLS isolation, constraints, seeding, balances). **Waiting for the owner's approval before `db push`.**
+2. App shell (shadcn sidebar), nav for all sections, money formatting helper.
 
 **Open questions**
-- IDR as the default currency? Multi-currency ever needed?
-- Keep-alive host (see item 6).
+- ✅ IDR is the default; 14 curated currencies (see DECISIONS).
+- Backup destination for Phase H (private repo artifacts vs. Google Drive vs. R2): decide then.
 - Optimize the 1.2 MB logo PNG (and add an SVG?).
 - The chart palette is single-hue green; categorical charts may need extra hues.
 

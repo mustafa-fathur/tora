@@ -1,0 +1,37 @@
+# Data model
+
+Postgres on Supabase. Every user-owned table has `user_id` (defaults to `auth.uid()`), **RLS on**, and one owner-only policy. Composite foreign keys `(x_id, user_id)` stop a row from pointing at another user's account or category.
+
+```mermaid
+erDiagram
+    currencies ||--o{ accounts : "denominated in"
+    profiles ||--o{ accounts : owns
+    accounts ||--o{ transactions : "has"
+    categories ||--o{ transactions : "classifies"
+    categories ||--o{ categories : "group of"
+    categories ||--o{ budgets : "limited by"
+    accounts ||--o{ recurring_items : "paid from"
+    categories ||--o{ recurring_items : ""
+    recurring_items ||--o{ transactions : "creates"
+    accounts ||--o{ goals : "funds"
+```
+
+## Rules
+- **Money** is `numeric(18,2)` (exact decimal, never float), in the account's currency. `currencies.decimals` controls display only (IDR shows 0 decimals).
+- **Amounts are signed.** Money in is positive, money out is negative. Account balance = `opening_balance + sum(transactions.amount)` (view `account_balances`).
+- **Liabilities** (credit card, loan) have negative balances. Net worth = the sum of all balances where `include_in_net_worth`.
+- **Transaction kinds:**
+  - `regular`: income or spending, categorized. A refund is a positive amount in an expense category, so it reduces spending.
+  - `transfer`: two rows (one per account) sharing a `transfer_id`. Excluded from cash flow.
+  - `adjustment`: balance corrections and investment/property revaluations. Excluded from cash flow.
+- **Categories** have two levels: a group (`parent_id` null) and its categories. Kind is `expense` or `income`. New users get a default set.
+- **Budgets:** one amount per category per month (`month` = first day of the month), in the base currency.
+- **Recurring items:** expected signed amount, frequency (`daily`, `weekly`, `monthly`, `yearly`) × `interval_count`, and `next_due_date`.
+- **Goals:** a target amount and optional date. Progress = the linked account's balance, or `saved_amount` if no account is linked.
+- **Profiles:** one per user (base currency `IDR`, timezone `Asia/Jakarta`), created by a trigger on sign-up.
+
+## Not yet (planned)
+- `exchange_rates` for converting to the base currency (FX phase)
+- Investment holdings (ticker, units, price)
+- CSV import batches (`import_id` on transactions)
+- Tags, attachments (Supabase Storage)

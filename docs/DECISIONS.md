@@ -21,3 +21,9 @@
 | 2026-11-02 | Signed-in/out redirects live in `proxy.ts`; pages read the session only inside `<Suspense>` | Required by `cacheComponents`; keeps auth pages static |
 | 2026-11-02 | Public sign-ups **off**; Tora is invite-only. `/register` shows an "invite-only" notice; sign-up form and action removed (they remain in git history) | Only the owner (and later a few friends) should have accounts; invites via the Supabase dashboard |
 | 2026-11-02 | Show/hide toggle on password fields (login, reset) | Owner wants to check what they typed |
+| 2026-11-02 | Default currency **IDR**; 14 curated currencies in a `currencies` table; per-account currency | Formatting is free via `Intl.NumberFormat`; conversion needs FX rates, so a short list keeps that phase manageable |
+| 2026-11-02 | Money as `numeric(18,2)`, signed amounts (in > 0, out < 0), liabilities negative | Exact decimals, and balance = opening + sum; refunds and credit cards work without special cases |
+| 2026-11-02 | Scope: all Monarch-style areas; investments = manual valuations first; advice = rule-based insights first, AI optional and last | Covers daily needs without price feeds or paid AI APIs |
+| 2026-11-02 | Composite FKs `(x_id, user_id)` on all cross-table references | Stops rows from pointing at another user's data, alongside RLS |
+| 2026-11-02 | Keep-alive + backups in a separate **private** `tora-ops` repo (Phase H, before real data piles up) | Avoids the 60-day public-repo cron rule; backup logs stay private |
+| 2026-11-02 | Custom SMTP and friend invites moved to the last phase | The owner's own email works with Supabase's built-in email |

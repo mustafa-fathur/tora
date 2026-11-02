@@ -7,15 +7,22 @@ A calm, trustworthy personal finance tracker that I (the only user) open every d
 Me, in Indonesia. Later, possibly **a few invited friends** (invite-only, each sees only their own data through RLS). Public sign-up is off. Indonesian banks aren't covered by bank-sync aggregators, so all data is entered by hand or imported from CSV.
 
 ## Features (Monarch Money is the feature inspiration only; all branding, UI, and copy are original)
-- **Auth:** email + password login, forgot/reset password. Invite-only (no public sign-up).
-- **Accounts:** cash, bank, e-wallet, credit card, investment; balances.
-- **Transactions:** manual entry (amount, date, account, category, note); edit and delete.
-- **Categories:** income and expense, editable.
-- **Budgets:** monthly limit per category; spent vs. remaining.
-- **Recurring items:** subscriptions, salary, bills.
-- **Net worth:** assets minus liabilities over time.
-- **Reports:** spending by category, cash flow per month (shadcn charts).
-- **CSV import:** bank statements (later).
+| Area | Scope |
+|---|---|
+| Auth | Email + password, forgot/reset. Invite-only. ✅ |
+| Accounts | Cash, bank, e-wallet, credit card, loan, investment, property, other. Per-account currency. Archive. |
+| Transactions | Manual entry, edit, delete, search/filter. Transfers between accounts. Refunds. Balance adjustments. |
+| Categories | Two levels (group → category), editable defaults for Indonesia. |
+| Dashboard | Net worth, this month's cash flow, budget status, upcoming bills, recent transactions. |
+| Cash flow | Income vs spending per month, by category. |
+| Budgets | Monthly limit per category or group, spent vs. remaining, copy from last month. |
+| Recurring | Bills, subscriptions, salary: upcoming list, "mark paid" creates the transaction. |
+| Goals | Target and date, progress from a linked account or a manual amount. |
+| Investments | Investment accounts with manual value updates (v1). Holdings and prices later. |
+| Reports | Spending by category, trends over time, net worth history (shadcn charts). |
+| Insights | Rule-based observations (e.g. spending up X% vs. last month). AI advice is optional and last. |
+| Currencies | 14 curated currencies, IDR default; formatting via `Intl.NumberFormat`. Conversion to IDR in a later phase. |
+| CSV import | Bank statement import with column mapping and duplicate detection (later). |
 
 ## Non-goals (for now)
 - Bank sync / aggregators
@@ -25,11 +32,16 @@ Me, in Indonesia. Later, possibly **a few invited friends** (invite-only, each s
 - Separate backend service (Supabase only)
 
 ## Phases
-| Phase | Scope |
-|---|---|
-| A | Repo docs, light green theme, first commit |
-| B | GitHub repo + push (done: public, `master`) |
-| C | Supabase project, Auth config, env vars, `heartbeat` table |
-| D | Netlify deploy + Supabase redirect URLs |
-| E | Auth UI: login, register, forgot/reset password, protected placeholder dashboard |
-| Next | App shell (`dashboard-01`), schema for accounts/transactions, budgets, reports, CSV import, keep-alive + backup workflows, mobile app |
+| Phase | Scope | Status |
+|---|---|---|
+| A–E | Docs, theme, GitHub, Supabase, Netlify, auth | ✅ |
+| F | Schema v1 (`docs/DATA-MODEL.md`), app shell (sidebar nav), money formatting | in progress |
+| G | Accounts, categories, transactions (incl. transfers): **daily use starts here** | |
+| H | Ops: private `tora-ops` repo with keep-alive + encrypted nightly backups | |
+| I | Dashboard, cash flow, budgets | |
+| J | Recurring items, goals | |
+| K | Reports, net worth history, rule-based insights | |
+| L | Currency conversion (FX rates), investment holdings | |
+| M | CSV import | |
+| N | Installable PWA for phone, custom SMTP + friend invites, optional AI advice | |
+| Later | Native mobile app (Expo) | |
