@@ -6,6 +6,16 @@ export function today(timeZone = TIMEZONE) {
   return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date()); // YYYY-MM-DD
 }
 
+// Current time as "HH:MM" (same caveat as today()).
+export function nowTime(timeZone = TIMEZONE) {
+  return new Intl.DateTimeFormat("en-GB", { timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(
+    new Date(),
+  );
+}
+
+// "HH:MM" or "HH:MM:SS"
+export const isTime = (s: string) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(s);
+
 export const isIsoDate = (s: string) =>
   /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`));
 

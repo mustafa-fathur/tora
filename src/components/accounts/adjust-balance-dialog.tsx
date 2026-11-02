@@ -43,7 +43,7 @@ export function AdjustBalanceDialog({
 
 function AdjustForm({ account, onDone }: { account: Account; onDone: () => void }) {
   const [state, action, pending] = useSaveAction(adjustBalance, onDone);
-  const liability = isLiability(account.type);
+  const liability = isLiability(account.class);
   return (
     <form action={action}>
       <FieldGroup>

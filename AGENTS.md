@@ -34,6 +34,8 @@ More detail is in `docs/` (start at `docs/README.md`).
 npm run dev      # http://localhost:5000
 npm run build    # production build + type check
 npm run lint     # eslint
+npm run typecheck
+npm test         # Vitest: unit tests + database tests (migrations + RLS in PGlite)
 npx shadcn@latest add <component>   # add shadcn components/blocks
 npm exec -- supabase migration new <name>   # new SQL migration in supabase/migrations
 npm exec -- supabase db push --linked --dry-run   # preview pending migrations
@@ -51,6 +53,7 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - In Server Components, call `await connection()` (from `next/server`) before Supabase session or data calls. Supabase uses `Date.now()`, which `cacheComponents` forbids during prerendering. Read request-time data inside `<Suspense>`.
 - New signed-in pages go in `src/app/(app)/<section>/` (sidebar shell) and are private by default (`proxy.ts` only lets `PUBLIC` paths through). Add nav entries in `src/components/app/nav.ts`.
 - **Data:** reads go through `src/lib/data/queries.ts` (wrapped in `cache()`, call `connection()`). Writes are server actions in `src/app/(app)/<section>/actions.ts` that validate input, return `ActionState`, and call `refresh()` from `next/cache`. RLS does the authorization.
+- **Tests** (keep them light): unit tests for pure helpers in `tests/unit/`; database tests in `tests/db/` run every migration in PGlite with a stubbed `auth` schema. A new table needs an RLS isolation check there. CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and build on every push and PR. No browser E2E for now.
 - After each migration, run `npm run db:types` to regenerate `src/lib/supabase/database.types.ts`.
 - Parse typed amounts with `parseAmount()` (Indonesian style: `1.250.000`, `10,50`).
 - Show money with `formatMoney()` from `src/lib/money.ts`. Don't format numbers by hand.

@@ -16,7 +16,11 @@ Newest session at the top. Each entry has: done, next, open questions.
    - Settings → Categories: add/rename groups (with emoji) and categories, delete (transactions become uncategorized).
    - Typed Supabase client (`npm run db:types`).
    - Not tested in a browser by the agent (no session, and headless Chromium is missing system libraries); build, types and lint pass.
-5. Next: **Phase H** (ops: keep-alive + backups in the private `tora-ops` repo), then **Phase I** (dashboard, cash flow, budgets).
+5. Owner feedback on Phase G: everything works. Follow-ups done:
+   - **Account types** are now manageable in Settings (tabs: Categories | Account types), with migration `20261102160513` applied after a local data dump. The owner's 2 accounts were moved to their matching types.
+   - **Time** on transactions (optional, defaults to now).
+   - **Tests + CI**: 29 tests (`npm test`) and `.github/workflows/ci.yml`.
+6. Next: **Phase H** (ops: keep-alive + backups in the private `tora-ops` repo), then **Phase I** (dashboard, cash flow, budgets).
 
 **Open questions**
 - ✅ IDR is the default; 14 curated currencies (see DECISIONS).

@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { today } from "@/lib/finance/dates";
+import { nowTime, today } from "@/lib/finance/dates";
 import type { Account, CategoryGroup, Transaction } from "@/lib/finance/types";
 import { formatMoney, parseAmount } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -106,6 +106,10 @@ function TransactionForm(form: TransactionFormProps & { onDone: () => void }) {
     return v ? String(Math.abs(Number(v))) : "";
   });
   const [date] = useState(() => transfer?.out.date ?? t?.date ?? today());
+  const [time] = useState(() => {
+    const existing = transfer ? transfer.out.time : t?.time;
+    return editing ? (existing?.slice(0, 5) ?? "") : nowTime();
+  });
 
   const selectable = accounts.filter(
     (a) => !a.is_archived || a.id === accountId || a.id === toAccountId,
@@ -241,22 +245,27 @@ function TransactionForm(form: TransactionFormProps & { onDone: () => void }) {
           />
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-[3fr_2fr] gap-4">
           <Field>
             <FieldLabel htmlFor="date">Date</FieldLabel>
             <Input id="date" name="date" type="date" defaultValue={date} required />
           </Field>
           <Field>
-            <FieldLabel htmlFor="description">Description</FieldLabel>
-            <Input
-              id="description"
-              name="description"
-              placeholder={mode === "transfer" ? "Optional" : "e.g. Lunch"}
-              defaultValue={(transfer ? transfer.out.description : t?.description) ?? ""}
-              maxLength={200}
-            />
+            <FieldLabel htmlFor="time">Time (optional)</FieldLabel>
+            <Input id="time" name="time" type="time" defaultValue={time} />
           </Field>
         </div>
+
+        <Field>
+          <FieldLabel htmlFor="description">Description</FieldLabel>
+          <Input
+            id="description"
+            name="description"
+            placeholder={mode === "transfer" ? "Optional" : "e.g. Lunch at warung"}
+            defaultValue={(transfer ? transfer.out.description : t?.description) ?? ""}
+            maxLength={200}
+          />
+        </Field>
 
         <Field>
           <FieldLabel htmlFor="notes">Notes (optional)</FieldLabel>

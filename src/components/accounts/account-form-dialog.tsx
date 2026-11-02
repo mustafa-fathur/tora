@@ -18,22 +18,25 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ACCOUNT_TYPE_LABELS, isLiability } from "@/lib/finance/accounts";
+import { ACCOUNT_CLASSES, isLiability } from "@/lib/finance/accounts";
 import type { Account, AccountType, Currency } from "@/lib/finance/types";
 
 type Props = {
   account?: Account; // edit mode when set
   currencies: Currency[];
+  types: AccountType[];
   trigger?: React.ReactNode; // or control it with open/onOpenChange
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
 
-export function AccountFormDialog({ account, currencies, trigger, ...controlled }: Props) {
+export function AccountFormDialog({ account, currencies, types, trigger, ...controlled }: Props) {
   const [ownOpen, setOwnOpen] = useState(false);
   const open = controlled.open ?? ownOpen;
   const setOpen = controlled.onOpenChange ?? setOwnOpen;
@@ -49,7 +52,7 @@ export function AccountFormDialog({ account, currencies, trigger, ...controlled 
               : "Anywhere you keep or owe money."}
           </DialogDescription>
         </DialogHeader>
-        <AccountForm account={account} currencies={currencies} onDone={() => setOpen(false)} />
+        <AccountForm account={account} currencies={currencies} types={types} onDone={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );
@@ -58,11 +61,18 @@ export function AccountFormDialog({ account, currencies, trigger, ...controlled 
 function AccountForm({
   account,
   currencies,
+  types,
   onDone,
-}: Pick<Props, "account" | "currencies"> & { onDone: () => void }) {
+}: Pick<Props, "account" | "currencies" | "types"> & { onDone: () => void }) {
   const [state, action, pending] = useSaveAction(saveAccount, onDone);
-  const [type, setType] = useState<AccountType>(account?.type ?? "bank");
-  const liability = isLiability(type);
+  // When editing, an account can't move between debts and assets (amounts would flip).
+  const allowed = account
+    ? types.filter((t) => isLiability(t.class) === isLiability(account.class))
+    : types;
+  const [typeId, setTypeId] = useState(
+    account?.type_id ?? allowed.find((t) => t.name === "Bank account")?.id ?? allowed[0]?.id ?? "",
+  );
+  const liability = isLiability(types.find((t) => t.id === typeId)?.class ?? "cash");
   const opening = account ? Math.abs(Number(account.opening_balance)) : "";
 
   return (
@@ -76,17 +86,26 @@ function AccountForm({
         </Field>
         <div className="grid grid-cols-2 gap-4">
           <Field>
-            <FieldLabel htmlFor="type">Type</FieldLabel>
-            <Select name="type" value={type} onValueChange={(v) => setType(v as AccountType)}>
-              <SelectTrigger id="type" className="w-full">
-                <SelectValue />
+            <FieldLabel htmlFor="type_id">Type</FieldLabel>
+            <Select name="type_id" value={typeId} onValueChange={setTypeId} required>
+              <SelectTrigger id="type_id" className="w-full">
+                <SelectValue placeholder="Choose…" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(ACCOUNT_TYPE_LABELS).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
+                {ACCOUNT_CLASSES.map((c) => {
+                  const items = allowed.filter((t) => t.class === c.value);
+                  if (items.length === 0) return null;
+                  return (
+                    <SelectGroup key={c.value}>
+                      <SelectLabel>{c.title}</SelectLabel>
+                      {items.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  );
+                })}
               </SelectContent>
             </Select>
           </Field>

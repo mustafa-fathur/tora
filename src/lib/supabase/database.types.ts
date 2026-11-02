@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_types: {
+        Row: {
+          class: Database["public"]["Enums"]["account_class"]
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          class: Database["public"]["Enums"]["account_class"]
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          class?: Database["public"]["Enums"]["account_class"]
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       accounts: {
         Row: {
           created_at: string
@@ -25,7 +55,7 @@ export type Database = {
           name: string
           opening_balance: number
           sort_order: number
-          type: Database["public"]["Enums"]["account_type"]
+          type_id: string
           updated_at: string
           user_id: string
         }
@@ -39,7 +69,7 @@ export type Database = {
           name: string
           opening_balance?: number
           sort_order?: number
-          type: Database["public"]["Enums"]["account_type"]
+          type_id: string
           updated_at?: string
           user_id?: string
         }
@@ -53,7 +83,7 @@ export type Database = {
           name?: string
           opening_balance?: number
           sort_order?: number
-          type?: Database["public"]["Enums"]["account_type"]
+          type_id?: string
           updated_at?: string
           user_id?: string
         }
@@ -64,6 +94,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "currencies"
             referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "accounts_type_id_user_id_fkey"
+            columns: ["type_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "account_types"
+            referencedColumns: ["id", "user_id"]
           },
         ]
       }
@@ -372,6 +409,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["transaction_kind"]
           notes: string | null
           recurring_item_id: string | null
+          time: string | null
           transfer_id: string | null
           updated_at: string
           user_id: string
@@ -387,6 +425,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["transaction_kind"]
           notes?: string | null
           recurring_item_id?: string | null
+          time?: string | null
           transfer_id?: string | null
           updated_at?: string
           user_id?: string
@@ -402,6 +441,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["transaction_kind"]
           notes?: string | null
           recurring_item_id?: string | null
+          time?: string | null
           transfer_id?: string | null
           updated_at?: string
           user_id?: string
@@ -458,22 +498,17 @@ export type Database = {
       }
     }
     Functions: {
+      seed_default_account_types: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       seed_default_categories: {
         Args: { p_user_id: string }
         Returns: undefined
       }
     }
     Enums: {
-      account_type:
-        | "cash"
-        | "bank"
-        | "e_wallet"
-        | "credit_card"
-        | "loan"
-        | "investment"
-        | "property"
-        | "other_asset"
-        | "other_liability"
+      account_class: "cash" | "investment" | "liability"
       category_kind: "expense" | "income"
       recurrence_frequency: "daily" | "weekly" | "monthly" | "yearly"
       transaction_kind: "regular" | "transfer" | "adjustment"
@@ -604,17 +639,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      account_type: [
-        "cash",
-        "bank",
-        "e_wallet",
-        "credit_card",
-        "loan",
-        "investment",
-        "property",
-        "other_asset",
-        "other_liability",
-      ],
+      account_class: ["cash", "investment", "liability"],
       category_kind: ["expense", "income"],
       recurrence_frequency: ["daily", "weekly", "monthly", "yearly"],
       transaction_kind: ["regular", "transfer", "adjustment"],

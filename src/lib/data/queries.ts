@@ -1,23 +1,42 @@
 import { connection } from "next/server";
 import { cache } from "react";
 
-import type { Account, Category, CategoryGroup, Transaction } from "@/lib/finance/types";
+import type { Account, AccountType, Category, CategoryGroup, Transaction } from "@/lib/finance/types";
 import { createClient } from "@/lib/supabase/server";
 
 // Read helpers for Server Components. RLS limits every query to the signed-in
 // user. cache() dedupes calls within one request (e.g. layout + page).
 
+export const getAccountTypes = cache(async (): Promise<AccountType[]> => {
+  await connection();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("account_types")
+    .select("*")
+    .order("sort_order")
+    .order("name");
+  if (error) throw error;
+  return data;
+});
+
 export const getAccounts = cache(async (): Promise<Account[]> => {
   await connection();
   const supabase = await createClient();
-  const [accounts, balances] = await Promise.all([
+  const [accounts, balances, types] = await Promise.all([
     supabase.from("accounts").select("*").order("sort_order").order("created_at"),
     supabase.from("account_balances").select("account_id, balance"),
+    getAccountTypes(),
   ]);
   if (accounts.error) throw accounts.error;
   if (balances.error) throw balances.error;
-  const byId = new Map(balances.data.map((b) => [b.account_id, Number(b.balance ?? 0)]));
-  return accounts.data.map((a) => ({ ...a, balance: byId.get(a.id) ?? Number(a.opening_balance) }));
+  const balanceOf = new Map(balances.data.map((b) => [b.account_id, Number(b.balance ?? 0)]));
+  const typeOf = new Map(types.map((t) => [t.id, t]));
+  return accounts.data.map((a) => ({
+    ...a,
+    balance: balanceOf.get(a.id) ?? Number(a.opening_balance),
+    type_name: typeOf.get(a.type_id)?.name ?? "Account",
+    class: typeOf.get(a.type_id)?.class ?? "cash",
+  }));
 });
 
 export const getCategories = cache(async (): Promise<Category[]> => {
@@ -61,6 +80,7 @@ export async function getTransactions(f: TransactionFilters): Promise<Transactio
     .gte("date", f.start)
     .lt("date", f.end)
     .order("date", { ascending: false })
+    .order("time", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .limit(1000);
   if (f.accountId) query = query.eq("account_id", f.accountId);

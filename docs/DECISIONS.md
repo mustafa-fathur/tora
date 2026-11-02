@@ -31,3 +31,7 @@
 | 2026-11-02 | App shell = shadcn `sidebar` only (not the full dashboard-01 block); collapsible to icons, sheet on mobile | Lean; charts and tables are added when a feature needs them |
 | 2026-11-02 | Money display uses the `id-ID` number style (Rp 1.250.000, US$10,50) with English UI copy | Familiar separators for an Indonesian user |
 | 2026-11-02 | Top bar = sidebar toggle + page title + **global** actions (e.g. "Add transaction", from Phase G). Page-specific controls (month picker, filters, "Add account") sit in a header row inside the page content | One quick-add button reachable from everywhere; page controls stay next to the content they change |
+| 2026-11-02 | Account types are a user-managed table with a fixed **class** (cash / investment / liability) instead of an enum | The owner wants to add types (Paylater, Deposito…); the class keeps the debt sign and grouping correct |
+| 2026-11-02 | Optional `time` on transactions, defaulting to the current time on entry | Orders spending within a day without making the time mandatory |
+| 2026-11-02 | Testing: Vitest unit tests + PGlite database tests + GitHub Actions CI (lint, typecheck, test, build). No E2E yet | Catches money-math and RLS regressions cheaply; light enough for a one-person project |
+| 2026-11-02 | Before data-changing migrations, dump the hosted data locally (`supabase db dump --data-only`, outside the repo) | No automatic backups on the free tier until Phase H |

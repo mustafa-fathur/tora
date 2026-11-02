@@ -5,6 +5,7 @@ Postgres on Supabase. Every user-owned table has `user_id` (defaults to `auth.ui
 ```mermaid
 erDiagram
     currencies ||--o{ accounts : "denominated in"
+    account_types ||--o{ accounts : "typed as"
     profiles ||--o{ accounts : owns
     accounts ||--o{ transactions : "has"
     categories ||--o{ transactions : "classifies"
@@ -19,11 +20,13 @@ erDiagram
 ## Rules
 - **Money** is `numeric(18,2)` (exact decimal, never float), in the account's currency. `currencies.decimals` controls display only (IDR shows 0 decimals).
 - **Amounts are signed.** Money in is positive, money out is negative. Account balance = `opening_balance + sum(transactions.amount)` (view `account_balances`).
-- **Liabilities** (credit card, loan) have negative balances. Net worth = the sum of all balances where `include_in_net_worth`.
+- **Account types** are user-managed (Settings → Account types; 10 defaults). Each has a **class**: `cash` (Cash & bank), `investment` (Investments & property), or `liability` (Debts). The class can't change while accounts use the type, and an account can't move between a debt type and an asset type.
+- **Debts** (class `liability`: credit card, paylater, loan) have negative balances. Net worth = the sum of all balances where `include_in_net_worth`.
 - **Transaction kinds:**
   - `regular`: income or spending, categorized. A refund is a positive amount in an expense category, so it reduces spending.
   - `transfer`: two rows (one per account) sharing a `transfer_id`. Excluded from cash flow.
   - `adjustment`: balance corrections and investment/property revaluations. Excluded from cash flow.
+- **Time** on transactions is optional (`time`), used to order within a day.
 - **Categories** have two levels: a group (`parent_id` null) and its categories. Kind is `expense` or `income`. New users get a default set.
 - **Budgets:** one amount per category per month (`month` = first day of the month), in the base currency.
 - **Recurring items:** expected signed amount, frequency (`daily`, `weekly`, `monthly`, `yearly`) × `interval_count`, and `next_due_date`.

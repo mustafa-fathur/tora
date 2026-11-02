@@ -17,12 +17,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ACCOUNT_TYPE_LABELS } from "@/lib/finance/accounts";
-import type { Account, Currency } from "@/lib/finance/types";
+import type { Account, AccountType, Currency } from "@/lib/finance/types";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
-export function AccountRow({ account, currencies }: { account: Account; currencies: Currency[] }) {
+export function AccountRow({
+  account,
+  currencies,
+  types,
+}: {
+  account: Account;
+  currencies: Currency[];
+  types: AccountType[];
+}) {
   const [editOpen, setEditOpen] = useState(false);
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -40,7 +47,7 @@ export function AccountRow({ account, currencies }: { account: Account; currenci
           {!account.include_in_net_worth && <Badge variant="secondary">Not in net worth</Badge>}
         </div>
         <div className="truncate text-sm text-muted-foreground">
-          {[account.institution, ACCOUNT_TYPE_LABELS[account.type]].filter(Boolean).join(" · ")}
+          {[account.institution, account.type_name].filter(Boolean).join(" · ")}
         </div>
       </Link>
       <span className={cn("shrink-0 font-medium tabular-nums", account.balance < 0 && "text-destructive")}>
@@ -76,6 +83,7 @@ export function AccountRow({ account, currencies }: { account: Account; currenci
       <AccountFormDialog
         account={account}
         currencies={currencies}
+        types={types}
         open={editOpen}
         onOpenChange={setEditOpen}
       />

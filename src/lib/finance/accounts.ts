@@ -1,25 +1,13 @@
-import type { AccountType } from "@/lib/finance/types";
+import type { AccountClass } from "@/lib/finance/types";
 
-export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
-  cash: "Cash",
-  bank: "Bank account",
-  e_wallet: "E-wallet",
-  credit_card: "Credit card",
-  loan: "Loan",
-  investment: "Investment",
-  property: "Property",
-  other_asset: "Other asset",
-  other_liability: "Other liability",
-};
-
-const LIABILITIES: AccountType[] = ["credit_card", "loan", "other_liability"];
-
-// Liabilities are stored with negative balances (see docs/DATA-MODEL.md).
-export const isLiability = (type: AccountType) => LIABILITIES.includes(type);
-
-// Sections on the Accounts page, in display order.
-export const ACCOUNT_SECTIONS: { title: string; types: AccountType[] }[] = [
-  { title: "Cash & bank", types: ["cash", "bank", "e_wallet"] },
-  { title: "Investments & property", types: ["investment", "property", "other_asset"] },
-  { title: "Credit cards & loans", types: ["credit_card", "loan", "other_liability"] },
+// Account classes drive behavior; account types (user-managed) belong to one.
+export const ACCOUNT_CLASSES: { value: AccountClass; title: string; hint: string }[] = [
+  { value: "cash", title: "Cash & bank", hint: "Money you can spend: cash, bank accounts, e-wallets" },
+  { value: "investment", title: "Investments & property", hint: "Things you own that hold value" },
+  { value: "liability", title: "Debts", hint: "Money you owe: credit cards, paylater, loans" },
 ];
+
+export const classTitle = (c: AccountClass) => ACCOUNT_CLASSES.find((x) => x.value === c)!.title;
+
+// Debts are stored with negative balances (see docs/DATA-MODEL.md).
+export const isLiability = (c: AccountClass) => c === "liability";

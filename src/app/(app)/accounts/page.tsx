@@ -7,8 +7,8 @@ import { AccountRow } from "@/components/accounts/account-row";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAccounts, getCurrencies } from "@/lib/data/queries";
-import { ACCOUNT_SECTIONS, isLiability } from "@/lib/finance/accounts";
+import { getAccounts, getAccountTypes, getCurrencies } from "@/lib/data/queries";
+import { ACCOUNT_CLASSES, isLiability } from "@/lib/finance/accounts";
 import type { Account } from "@/lib/finance/types";
 import { formatMoney } from "@/lib/money";
 
@@ -23,13 +23,14 @@ export default function AccountsPage() {
 }
 
 async function AccountsView() {
-  const [accounts, currencies] = await Promise.all([getAccounts(), getCurrencies()]);
+  const [accounts, currencies, types] = await Promise.all([getAccounts(), getCurrencies(), getAccountTypes()]);
   const active = accounts.filter((a) => !a.is_archived);
   const archived = accounts.filter((a) => a.is_archived);
 
   const addButton = (
     <AccountFormDialog
       currencies={currencies}
+      types={types}
       trigger={
         <Button>
           <Plus /> Add account
@@ -58,18 +59,18 @@ async function AccountsView() {
         {addButton}
       </div>
 
-      {ACCOUNT_SECTIONS.map((section) => {
-        const items = active.filter((a) => section.types.includes(a.type));
+      {ACCOUNT_CLASSES.map((section) => {
+        const items = active.filter((a) => a.class === section.value);
         if (items.length === 0) return null;
         return (
-          <Card key={section.title} className="gap-0 py-0">
+          <Card key={section.value} className="gap-0 py-0">
             <CardHeader className="border-b py-4">
               <CardTitle className="text-base">{section.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="divide-y">
                 {items.map((a) => (
-                  <AccountRow key={a.id} account={a} currencies={currencies} />
+                  <AccountRow key={a.id} account={a} currencies={currencies} types={types} />
                 ))}
               </ul>
             </CardContent>
@@ -84,7 +85,7 @@ async function AccountsView() {
           </summary>
           <ul className="divide-y">
             {archived.map((a) => (
-              <AccountRow key={a.id} account={a} currencies={currencies} />
+              <AccountRow key={a.id} account={a} currencies={currencies} types={types} />
             ))}
           </ul>
         </details>
@@ -97,8 +98,8 @@ async function AccountsView() {
 function NetWorthSummary({ accounts }: { accounts: Account[] }) {
   const counted = accounts.filter((a) => a.include_in_net_worth);
   const idr = counted.filter((a) => a.currency === "IDR");
-  const assets = idr.filter((a) => !isLiability(a.type)).reduce((s, a) => s + a.balance, 0);
-  const liabilities = idr.filter((a) => isLiability(a.type)).reduce((s, a) => s + a.balance, 0);
+  const assets = idr.filter((a) => !isLiability(a.class)).reduce((s, a) => s + a.balance, 0);
+  const liabilities = idr.filter((a) => isLiability(a.class)).reduce((s, a) => s + a.balance, 0);
 
   const foreign = new Map<string, number>();
   for (const a of counted.filter((a) => a.currency !== "IDR")) {
@@ -112,7 +113,7 @@ function NetWorthSummary({ accounts }: { accounts: Account[] }) {
         {formatMoney(assets + liabilities)}
       </span>
       <span className="text-sm text-muted-foreground tabular-nums">
-        Assets {formatMoney(assets)} · Liabilities {formatMoney(Math.abs(liabilities))}
+        Assets {formatMoney(assets)} · Debts {formatMoney(Math.abs(liabilities))}
       </span>
       {foreign.size > 0 && (
         <span className="text-sm text-muted-foreground">

@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 
-import { isIsoDate } from "@/lib/finance/dates";
+import { isIsoDate, isTime } from "@/lib/finance/dates";
 import { type ActionState, dbErrorMessage, fail, isUuid, optional, str } from "@/lib/finance/form";
 import { parseAmount } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
@@ -14,12 +14,14 @@ export async function saveTransaction(_: ActionState, fd: FormData): Promise<Act
   const transferId = str(fd, "transfer_id"); // transfer being edited
   const mode = str(fd, "mode") as Mode;
   const date = str(fd, "date");
+  const time = optional(fd, "time");
   const accountId = str(fd, "account_id");
   const description = optional(fd, "description");
   const notes = optional(fd, "notes");
 
   if (!["expense", "income", "transfer"].includes(mode)) return fail("Choose expense, income or transfer.");
   if (!isIsoDate(date)) return fail("Pick a valid date.");
+  if (time && !isTime(time)) return fail("Pick a valid time, or leave it empty.");
   if (!isUuid(accountId)) return fail("Choose an account.");
   if (description && description.length > 200) return fail("Description is too long.");
 
@@ -78,14 +80,14 @@ export async function saveTransaction(_: ActionState, fd: FormData): Promise<Act
       for (const [row, leg] of [[out, legs[0]], [inn, legs[1]]] as const) {
         const { error } = await supabase
           .from("transactions")
-          .update({ ...leg, date, notes })
+          .update({ ...leg, date, time, notes })
           .eq("id", row.id);
         if (error) return fail(dbErrorMessage(error));
       }
     } else {
       const newId = crypto.randomUUID();
       const { error } = await supabase.from("transactions").insert(
-        legs.map((leg) => ({ ...leg, kind: "transfer" as const, transfer_id: newId, date, notes })),
+        legs.map((leg) => ({ ...leg, kind: "transfer" as const, transfer_id: newId, date, time, notes })),
       );
       if (error) return fail(dbErrorMessage(error));
     }
@@ -112,6 +114,7 @@ export async function saveTransaction(_: ActionState, fd: FormData): Promise<Act
     kind: "regular" as const,
     amount: mode === "income" || refund ? amount : -amount,
     date,
+    time,
     description,
     notes,
     category_id: categoryId,

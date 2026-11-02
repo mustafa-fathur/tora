@@ -56,6 +56,7 @@ export function TransactionList({ transactions, partners, accounts, groups }: Pr
                   category?.name ||
                   (t.kind === "adjustment" ? "Balance update" : "Uncategorized");
                 const subtitle = [
+                  t.time?.slice(0, 5),
                   t.kind === "transfer"
                     ? "Transfer"
                     : t.kind === "adjustment"
