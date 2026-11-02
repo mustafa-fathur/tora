@@ -7,3 +7,61 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Tora: agent instructions
+
+This is the canonical instruction file. `CLAUDE.md` only imports it. Read `docs/PROGRESS.md` first to see where things stand.
+
+## Project summary
+
+Tora ("tiger" in Sumatra) is a **single-user personal finance tracker** (accounts, transactions, categories, budgets, recurring items, net worth, reports). The owner is in Indonesia, so data entry is **manual first, CSV import later**. There's no landing page: the first screen is `/login`. Feature ideas come from Monarch Money, but **branding, UI, and copy must be original**.
+
+More detail is in `docs/` (start at `docs/README.md`).
+
+## Stack
+
+| Layer | Choice |
+|---|---|
+| Web | Next.js 16 (App Router, TypeScript, Tailwind v4, `src/`, `@/*` → `./src/*`). Uses `proxy.ts`, not `middleware.ts`. `cacheComponents` is on. |
+| UI | shadcn/ui (Radix base, `new-york` style) + official blocks; charts via shadcn charts (Recharts) |
+| Backend | Supabase: Postgres, Auth, RLS, Storage (Edge Functions later). `@supabase/ssr`. No separate backend. |
+| Hosting | Netlify (GitHub deploys, deploy previews) |
+| Mobile (later) | Expo + React Native Reusables + NativeWind + Victory Native, same Supabase + tokens |
+
+## Commands
+
+```bash
+npm run dev      # http://localhost:3000
+npm run build    # production build + type check
+npm run lint     # eslint
+npx shadcn@latest add <component>   # add shadcn components/blocks
+```
+
+If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and build again.
+
+## Conventions
+
+- Code lives in `src/`: routes in `src/app`, shared UI in `src/components` (`ui/` holds shadcn components), and helpers in `src/lib`.
+- **Theme:** light only. Primary = logo green `#115C3B` (`oklch(0.4218 0.0896 158.83)`). Tokens live in `src/app/globals.css`. Use the tokens (`bg-primary`, `text-muted-foreground`, …), never raw hex values in components.
+- The logo is `public/brand/tora-logo.png`, and the favicon is `src/app/icon.png`.
+- Money: store amounts as integers in minor units, or as `numeric`. Never use floats. Default currency is IDR (not confirmed yet; ask the owner before putting it in the schema).
+- Keep the app portable. Don't use Netlify-only APIs in app code, because a move to Cloud Run is possible.
+- Docs and code comments are in English.
+- Keep commits small and meaningful.
+
+## Never do
+
+- Never commit `.env.local` or any real key. Only `.env.example` (placeholders) is committed.
+- Never use the Supabase `service_role` / secret key in the Next.js app, on the server or the client.
+- Never create a table without RLS enabled and policies scoped to `auth.uid()`.
+- Never add dark mode, a theme toggle, or remove `@custom-variant dark (&:is(.dark *))` from `globals.css`. That line keeps shadcn's `dark:` classes from following the OS setting.
+- Never copy Monarch Money's design, names, copy, or assets.
+- Never change the decided stack, add dependencies, design schema, or do anything costly or hard to undo without asking first.
+
+## How the owner likes to work
+
+- **Step by step:** for dashboard work (GitHub, Supabase, Netlify), give **one step at a time** and wait for confirmation.
+- **Cite official docs:** put a link next to each setup step or non-obvious decision.
+- **Use visuals:** include Mermaid diagrams when explaining how parts interact.
+- **Ask before** making decisions this file and `docs/` don't cover.
+- **End of every session:** update `docs/PROGRESS.md` (done, next, open questions), and add any new decision to `docs/DECISIONS.md`.
