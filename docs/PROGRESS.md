@@ -13,7 +13,8 @@ Newest session at the top. Each entry has: done, next, open questions.
 
 **Next**
 - Email: **default Supabase email + default templates for now** (owner's choice). Links use the PKCE `code` flow, so they must be opened in the same browser that started the sign-up or reset. Later: set up custom SMTP (Resend suggested, sending from the owner's domain) and then switch templates to `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email|recovery`.
-- The owner tests the full flow: register → confirm email → dashboard → log out → forgot → reset.
+- ✅ Owner tested locally (port 5000): register → "check inbox" → confirm link → /dashboard → log out. The owner's account now exists.
+- Test forgot → reset password locally, then the whole flow on production.
 - Decide whether to disable public sign-ups once the owner's account exists.
 - Then: `dashboard-01` shell, and confirm IDR before the schema.
 
