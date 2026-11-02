@@ -174,7 +174,7 @@ function TransactionForm(form: TransactionFormProps & { onDone: () => void }) {
           </FieldDescription>
         </Field>
 
-        <div className={cn("grid gap-4", mode === "transfer" && "grid-cols-2")}>
+        <div className={cn("grid gap-4 [&>*]:min-w-0", mode === "transfer" && "grid-cols-2")}>
           <AccountSelect
             id="account_id"
             label={mode === "transfer" ? "From" : "Account"}
@@ -245,7 +245,7 @@ function TransactionForm(form: TransactionFormProps & { onDone: () => void }) {
           />
         )}
 
-        <div className="grid grid-cols-[3fr_2fr] gap-4">
+        <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4">
           <Field>
             <FieldLabel htmlFor="date">Date</FieldLabel>
             <Input id="date" name="date" type="date" defaultValue={date} required />

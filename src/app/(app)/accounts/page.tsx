@@ -7,9 +7,11 @@ import { AccountRow } from "@/components/accounts/account-row";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAccounts, getAccountTypes, getCurrencies } from "@/lib/data/queries";
+import { getAccounts, getAccountTypes, getCurrencies, getRateMap } from "@/lib/data/queries";
 import { ACCOUNT_CLASSES, isLiability } from "@/lib/finance/accounts";
 import type { Account } from "@/lib/finance/types";
+import { sumInBase, type Rates } from "@/lib/finance/fx";
+import { MissingRatesNote } from "@/components/app/stat";
 import { formatMoney } from "@/lib/money";
 
 export const metadata: Metadata = { title: "Accounts · Tora" };
@@ -23,7 +25,7 @@ export default function AccountsPage() {
 }
 
 async function AccountsView() {
-  const [accounts, currencies, types] = await Promise.all([getAccounts(), getCurrencies(), getAccountTypes()]);
+  const [accounts, currencies, types, rates] = await Promise.all([getAccounts(), getCurrencies(), getAccountTypes(), getRateMap()]);
   const active = accounts.filter((a) => !a.is_archived);
   const archived = accounts.filter((a) => a.is_archived);
 
@@ -55,7 +57,7 @@ async function AccountsView() {
   return (
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <NetWorthSummary accounts={active} />
+        <NetWorthSummary accounts={active} rates={rates} />
         {addButton}
       </div>
 
@@ -94,32 +96,22 @@ async function AccountsView() {
   );
 }
 
-// Totals in IDR. Other currencies are listed separately until conversion (phase L).
-function NetWorthSummary({ accounts }: { accounts: Account[] }) {
+// Totals in IDR; foreign accounts are converted with the rates in Settings.
+function NetWorthSummary({ accounts, rates }: { accounts: Account[]; rates: Rates }) {
   const counted = accounts.filter((a) => a.include_in_net_worth);
-  const idr = counted.filter((a) => a.currency === "IDR");
-  const assets = idr.filter((a) => !isLiability(a.class)).reduce((s, a) => s + a.balance, 0);
-  const liabilities = idr.filter((a) => isLiability(a.class)).reduce((s, a) => s + a.balance, 0);
-
-  const foreign = new Map<string, number>();
-  for (const a of counted.filter((a) => a.currency !== "IDR")) {
-    foreign.set(a.currency, (foreign.get(a.currency) ?? 0) + a.balance);
-  }
+  const sum = (list: Account[]) => sumInBase(list.map((a) => ({ amount: a.balance, currency: a.currency })), rates);
+  const assets = sum(counted.filter((a) => !isLiability(a.class)));
+  const debts = sum(counted.filter((a) => isLiability(a.class)));
+  const missing = [...new Set([...assets.missing, ...debts.missing])];
 
   return (
     <div className="flex flex-col gap-1">
       <span className="text-sm text-muted-foreground">Net worth</span>
-      <span className="text-3xl font-semibold tracking-tight tabular-nums">
-        {formatMoney(assets + liabilities)}
-      </span>
+      <span className="text-3xl font-semibold tracking-tight tabular-nums">{formatMoney(assets.total + debts.total)}</span>
       <span className="text-sm text-muted-foreground tabular-nums">
-        Assets {formatMoney(assets)} · Debts {formatMoney(Math.abs(liabilities))}
+        Assets {formatMoney(assets.total)} · Debts {formatMoney(Math.abs(debts.total))}
       </span>
-      {foreign.size > 0 && (
-        <span className="text-sm text-muted-foreground">
-          Plus {[...foreign].map(([c, v]) => formatMoney(v, c)).join(", ")} (not converted yet)
-        </span>
-      )}
+      <MissingRatesNote currencies={missing} />
     </div>
   );
 }

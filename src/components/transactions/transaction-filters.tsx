@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileUp, Search, X } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
 
@@ -19,6 +20,8 @@ import { formatMonth, shiftMonth } from "@/lib/finance/dates";
 import type { Account, CategoryGroup } from "@/lib/finance/types";
 
 export type FilterValues = { month: string; account?: string; category?: string; q?: string };
+
+export const UNCATEGORIZED = "uncategorized";
 
 // Month switcher + filters. State lives in the URL (?month=&account=&category=&q=).
 export function TransactionFilters({
@@ -46,6 +49,11 @@ export function TransactionFilters({
   return (
     <div className="flex flex-col gap-3" aria-busy={pending}>
       <div className="flex items-center gap-1">
+        <Button asChild variant="outline" size="sm" className="order-last ml-auto">
+          <Link href="/transactions/import">
+            <FileUp /> Import CSV
+          </Link>
+        </Button>
         <Button variant="ghost" size="icon" aria-label="Previous month" onClick={() => go({ month: shiftMonth(values.month, -1) })}>
           <ChevronLeft />
         </Button>
@@ -91,6 +99,7 @@ export function TransactionFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All categories</SelectItem>
+            <SelectItem value={UNCATEGORIZED}>Uncategorized</SelectItem>
             {groups.map((g) => (
               <SelectGroup key={g.id}>
                 <SelectLabel>

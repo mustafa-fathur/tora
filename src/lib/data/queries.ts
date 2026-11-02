@@ -68,6 +68,9 @@ export type TransactionFilters = {
   end: string; // exclusive
   accountId?: string;
   categoryIds?: string[]; // a category, or a group plus its categories
+  uncategorized?: boolean;
+  importId?: string;
+  limit?: number;
   q?: string;
 };
 
@@ -82,9 +85,11 @@ export async function getTransactions(f: TransactionFilters): Promise<Transactio
     .order("date", { ascending: false })
     .order("time", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
-    .limit(1000);
+    .limit(f.limit ?? 1000);
   if (f.accountId) query = query.eq("account_id", f.accountId);
-  if (f.categoryIds?.length) query = query.in("category_id", f.categoryIds);
+  if (f.uncategorized) query = query.is("category_id", null).eq("kind", "regular");
+  else if (f.categoryIds?.length) query = query.in("category_id", f.categoryIds);
+  if (f.importId) query = query.eq("import_id", f.importId);
   if (f.q) {
     const term = f.q.replace(/[%_,()]/g, " ").trim();
     if (term) query = query.or(`description.ilike.%${term}%,notes.ilike.%${term}%`);
@@ -113,3 +118,95 @@ export async function getTransferPartners(rows: Transaction[]): Promise<Transact
   if (error) throw error;
   return data.filter((t) => !ids.has(t.id));
 }
+
+// The Supabase API returns at most 1000 rows per request; this pages through all of them.
+async function fetchAll<T>(
+  page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
+): Promise<T[]> {
+  const size = 1000;
+  const out: T[] = [];
+  for (let from = 0; ; from += size) {
+    const { data, error } = await page(from, from + size - 1);
+    if (error) throw error;
+    out.push(...(data ?? []));
+    if (!data || data.length < size) return out;
+  }
+}
+
+export type TxSlim = Pick<Transaction, "id" | "account_id" | "amount" | "date" | "kind" | "category_id" | "description">;
+
+// Light rows for totals and charts. `end` is exclusive.
+export async function getTransactionsBetween(start: string, end: string): Promise<TxSlim[]> {
+  await connection();
+  const supabase = await createClient();
+  return fetchAll((from, to) =>
+    supabase
+      .from("transactions")
+      .select("id, account_id, amount, date, kind, category_id, description")
+      .gte("date", start)
+      .lt("date", end)
+      .order("date")
+      .order("id")
+      .range(from, to),
+  );
+}
+
+// Every transaction's account, date and amount (for net worth history).
+export async function getBalanceMovements(until: string) {
+  await connection();
+  const supabase = await createClient();
+  return fetchAll((from, to) =>
+    supabase
+      .from("transactions")
+      .select("account_id, date, amount")
+      .lt("date", until)
+      .order("date")
+      .order("id")
+      .range(from, to),
+  );
+}
+
+export const getRates = cache(async () => {
+  await connection();
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("exchange_rates").select("*").order("currency");
+  if (error) throw error;
+  return data;
+});
+
+export async function getRateMap(): Promise<Record<string, number>> {
+  return Object.fromEntries((await getRates()).map((r) => [r.currency, Number(r.rate)]));
+}
+
+export async function getBudgets(month: string) {
+  await connection();
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("budgets").select("category_id, amount").eq("month", `${month}-01`);
+  if (error) throw error;
+  return new Map(data.map((b) => [b.category_id, Number(b.amount)]));
+}
+
+export const getRecurringItems = cache(async () => {
+  await connection();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("recurring_items")
+    .select("*")
+    .order("is_active", { ascending: false })
+    .order("next_due_date");
+  if (error) throw error;
+  return data;
+});
+
+export const getGoals = cache(async () => {
+  await connection();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("goals")
+    .select("*")
+    .order("is_archived")
+    .order("target_date", { nullsFirst: false })
+    .order("created_at");
+  if (error) throw error;
+  return data;
+});

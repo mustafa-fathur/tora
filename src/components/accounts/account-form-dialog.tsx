@@ -84,7 +84,7 @@ function AccountForm({
           <FieldLabel htmlFor="name">Name</FieldLabel>
           <Input id="name" name="name" defaultValue={account?.name} placeholder="e.g. BCA, GoPay, Wallet" required autoFocus />
         </Field>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 [&>*]:min-w-0">
           <Field>
             <FieldLabel htmlFor="type_id">Type</FieldLabel>
             <Select name="type_id" value={typeId} onValueChange={setTypeId} required>

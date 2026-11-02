@@ -104,3 +104,50 @@ export async function deleteAccountType(id: string): Promise<ActionState> {
   refresh();
   return { status: "success" };
 }
+
+// Saves exchange rates typed by hand: fields named rate_<CODE> (1 CODE = x IDR).
+export async function saveRates(_: ActionState, fd: FormData): Promise<ActionState> {
+  const supabase = await createClient();
+  for (const [key, value] of fd.entries()) {
+    if (!key.startsWith("rate_")) continue;
+    const currency = key.slice(5);
+    if (!/^[A-Z]{3}$/.test(currency) || currency === "IDR") continue;
+    const raw = String(value).trim();
+    if (raw === "") {
+      await supabase.from("exchange_rates").delete().eq("currency", currency);
+      continue;
+    }
+    const rate = Number(raw.replace(/\./g, "").replace(",", "."));
+    if (!Number.isFinite(rate) || rate <= 0) return fail(`The rate for ${currency} isn't a valid number.`);
+    const { error } = await supabase
+      .from("exchange_rates")
+      .upsert({ currency, rate, source: "manual" }, { onConflict: "user_id,currency" });
+    if (error) return fail(dbErrorMessage(error));
+  }
+  refresh();
+  return { status: "success" };
+}
+
+// Fetches today's rates from open.er-api.com (free, no key) for the given currencies.
+// Docs: https://www.exchangerate-api.com/docs/free
+export async function fetchRates(currencies: string[]): Promise<ActionState> {
+  const wanted = currencies.filter((c) => /^[A-Z]{3}$/.test(c) && c !== "IDR");
+  if (!wanted.length) return fail("No foreign currencies to update.");
+  let rates: Record<string, number>;
+  try {
+    const res = await fetch("https://open.er-api.com/v6/latest/IDR", { cache: "no-store" });
+    const body = (await res.json()) as { result?: string; rates?: Record<string, number> };
+    if (!res.ok || body.result !== "success" || !body.rates) throw new Error("bad response");
+    rates = body.rates; // 1 IDR = x CODE
+  } catch {
+    return fail("Couldn't reach the exchange rate service. Try again later or enter rates by hand.");
+  }
+  const rows = wanted
+    .filter((c) => rates[c] > 0)
+    .map((c) => ({ currency: c, rate: Math.round((1 / rates[c]) * 1e6) / 1e6, source: "api" }));
+  const supabase = await createClient();
+  const { error } = await supabase.from("exchange_rates").upsert(rows, { onConflict: "user_id,currency" });
+  if (error) return fail(dbErrorMessage(error));
+  refresh();
+  return { status: "success", message: `Updated ${rows.length} rate${rows.length === 1 ? "" : "s"}.` };
+}
