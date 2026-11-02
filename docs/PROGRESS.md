@@ -12,7 +12,7 @@ Newest session at the top. Each entry has: done, next, open questions.
 - Verified locally (production build): signed-out redirects, bad link → `/login?error=link_invalid`, `//evil.com` in `next` is blocked, forms render server-side, and Supabase returns `invalid_credentials` for a wrong password. A headless browser test wasn't possible (system libraries missing in WSL).
 
 **Next**
-- The owner updates the Supabase email templates (Confirm signup, Reset password) to the `token_hash` format.
+- Email: **default Supabase email + default templates for now** (owner's choice). Links use the PKCE `code` flow, so they must be opened in the same browser that started the sign-up or reset. Later: set up custom SMTP (Resend suggested, sending from the owner's domain) and then switch templates to `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email|recovery`.
 - The owner tests the full flow: register → confirm email → dashboard → log out → forgot → reset.
 - Decide whether to disable public sign-ups once the owner's account exists.
 - Then: `dashboard-01` shell, and confirm IDR before the schema.
