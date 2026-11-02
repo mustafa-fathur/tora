@@ -35,6 +35,8 @@ npm run dev      # http://localhost:5000
 npm run build    # production build + type check
 npm run lint     # eslint
 npx shadcn@latest add <component>   # add shadcn components/blocks
+npm exec -- supabase migration new <name>   # new SQL migration in supabase/migrations
+npm exec -- supabase db push                # apply pending migrations to the linked project
 ```
 
 If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and build again.
@@ -59,6 +61,7 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - Never print secrets or data in GitHub Actions (no `echo` of env vars, no dump uploaded as an artifact). Backups go to storage the owner controls, encrypted.
 - Never commit `.env.local` or any real key. Only `.env.example` (placeholders) is committed.
 - Never use the Supabase `service_role` / secret key in the Next.js app, on the server or the client.
+- Never change the database by hand in the dashboard. Every schema change is a migration in `supabase/migrations/`.
 - Never create a table without RLS enabled and policies scoped to `auth.uid()`.
 - Never add dark mode, a theme toggle, or remove `@custom-variant dark (&:is(.dark *))` from `globals.css`. That line keeps shadcn's `dark:` classes from following the OS setting.
 - Never copy Monarch Money's design, names, copy, or assets.

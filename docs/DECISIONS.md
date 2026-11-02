@@ -15,3 +15,4 @@
 | 2026-11-02 | Mobile later with Expo + RN Reusables + NativeWind + Victory Native | Reuses the Supabase backend and design tokens |
 | 2026-11-02 | **Repo is public**, default branch `master` (owner's choice, supersedes "private") | Owner is fine with the code being public. Consequences: no secrets or real financial data in git or Actions logs/artifacts; secret scanning + push protection on; keep-alive cron needs a plan for the 60-day rule (see PROGRESS open questions) |
 | 2026-11-02 | Local dev port **5000** (`next dev -p 5000`; `start` uses `$PORT`, falling back to 5000); Supabase Site URL + redirect allow `http://localhost:5000` | Other apps (incl. other Next.js apps) often hold 3000 |
+| 2026-11-02 | Supabase CLI (dev dependency) + SQL migrations in `supabase/migrations/` | Schema is versioned and reviewable in git; migrations contain only schema, so they're safe in a public repo |

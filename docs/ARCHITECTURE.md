@@ -23,7 +23,7 @@ src/
   proxy.ts             # planned: session refresh + route protection
 public/brand/          # logo
 docs/                  # these docs
-supabase/              # planned: migrations (if we use the Supabase CLI)
+supabase/              # Supabase CLI: config.toml (local stack) + migrations/
 ```
 
 ## Request and auth flow

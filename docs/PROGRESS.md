@@ -11,9 +11,12 @@ Newest session at the top. Each entry has: done, next, open questions.
 
 - Phase C: the owner created Supabase project `tora` (Singapore, free plan) and turned on email + password auth (confirm email on, secure email change on, min password length 10).
 - Switched local dev to port **5000**.
+- Set Supabase Site URL `http://localhost:5000` and redirect URL `http://localhost:5000/**`. `.env.local` is filled in and verified against `/auth/v1/settings` (HTTP 200, confirmations required).
+- Added the Supabase CLI and ran `supabase init`. `config.toml` auth settings are aligned with the dashboard (port 5000, min password length 10, confirmations on).
+- Migration `20261102090116_create_heartbeat.sql`: one-row table, RLS on, `anon` SELECT only.
 
 **Next**
-- Phase C: Site URL = `http://localhost:5000`, redirect URL `http://localhost:5000/**`, then `.env.local`, then the `heartbeat` table.
+- Phase C: `supabase login` + `supabase link`, `supabase db push`, then verify the heartbeat with the anon key.
 
 **Open questions**
 - **Keep-alive vs. the 60-day rule:** GitHub disables scheduled workflows in public repos after 60 days without repo activity. Options: (a) put the cron workflows in a small separate **private** repo, (b) re-enable the workflow manually when GitHub emails a warning, (c) use an external cron service. Decide before building the keep-alive job.
