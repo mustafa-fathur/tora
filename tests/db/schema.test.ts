@@ -150,6 +150,28 @@ describe("schema (fresh database)", () => {
     });
   });
 
+  it("keeps exchange rates private and valid", async () => {
+    await as(db, OWNER, () => q("insert into exchange_rates (currency, rate) values ('USD', 16000)"));
+    await as(db, OTHER, async () => {
+      expect(await count("select 1 from exchange_rates")).toBe(0);
+      await q("insert into exchange_rates (currency, rate) values ('USD', 1)"); // their own row is fine
+    });
+    await as(db, OWNER, async () => {
+      expect((await one<{ rate: string }>("select rate::text from exchange_rates")).rate).toBe("16000.00000000");
+      await expect(q("insert into exchange_rates (currency, rate) values ('IDR', 1)")).rejects.toThrow(/check/);
+      await expect(q("insert into exchange_rates (currency, rate) values ('EUR', 0)")).rejects.toThrow(/check/);
+    });
+  });
+
+  it("groups imported rows by import_id", async () => {
+    const importId = crypto.randomUUID();
+    await as(db, OWNER, async () => {
+      await q("insert into transactions (account_id, amount, date, import_id) values ($1, -1, '2026-11-03', $2), ($1, -2, '2026-11-03', $2)", [bank, importId]);
+      expect(await count("select 1 from transactions where import_id = $1", [importId])).toBe(2);
+      await q("delete from transactions where import_id = $1", [importId]);
+    });
+  });
+
   it("keeps transactions when their category is deleted", async () => {
     await as(db, OWNER, async () => {
       await q("delete from categories where id = $1", [groceries]);

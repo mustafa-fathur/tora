@@ -207,6 +207,38 @@ export type Database = {
         }
         Relationships: []
       }
+      exchange_rates: {
+        Row: {
+          currency: string
+          rate: number
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          currency: string
+          rate: number
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          currency?: string
+          rate?: number
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchange_rates_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       goals: {
         Row: {
           account_id: string | null
@@ -406,6 +438,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
+          import_id: string | null
           kind: Database["public"]["Enums"]["transaction_kind"]
           notes: string | null
           recurring_item_id: string | null
@@ -422,6 +455,7 @@ export type Database = {
           date: string
           description?: string | null
           id?: string
+          import_id?: string | null
           kind?: Database["public"]["Enums"]["transaction_kind"]
           notes?: string | null
           recurring_item_id?: string | null
@@ -438,6 +472,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          import_id?: string | null
           kind?: Database["public"]["Enums"]["transaction_kind"]
           notes?: string | null
           recurring_item_id?: string | null
