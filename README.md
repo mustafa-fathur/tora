@@ -1,6 +1,6 @@
 # Tora
 
-Personal finance tracker (single user). Next.js + shadcn/ui + Supabase, hosted on Netlify.
+Personal finance tracker. Next.js + shadcn/ui + Supabase, hosted on Netlify.
 
 ```bash
 cp .env.example .env.local   # fill in Supabase URL + publishable key
