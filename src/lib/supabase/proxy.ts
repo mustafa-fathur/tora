@@ -33,6 +33,15 @@ export async function updateSession(request: NextRequest) {
   // Don't run code between createServerClient and getClaims(): it can cause
   // hard-to-debug random logouts. getClaims() validates the JWT.
   const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims ?? null;
 
-  return { response, claims: data?.claims ?? null };
+  // Signed in with a password but has an authenticator: the 2FA code is still owed.
+  // (Reads the session from cookies; no network call.)
+  let needsTwoFactor = false;
+  if (claims && claims.aal !== "aal2") {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    needsTwoFactor = aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2";
+  }
+
+  return { response, claims, needsTwoFactor };
 }

@@ -21,11 +21,35 @@ export async function login(_: FormState, formData: FormData): Promise<FormState
   const password = String(formData.get("password") ?? "");
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     return { status: "error", message: authErrorMessage(error), code: error.code, email };
   }
-  redirect("/dashboard");
+  // With a confirmed authenticator, the password is only step one.
+  const hasTwoFactor = data.user?.factors?.some((f) => f.status === "verified");
+  redirect(hasTwoFactor ? "/two-factor" : "/dashboard");
+}
+
+// Step two of login for users with an authenticator app. A code from any of
+// their confirmed authenticators works.
+export async function verifyTwoFactor(_: FormState, formData: FormData): Promise<FormState> {
+  const code = field(formData, "code").replace(/\s/g, "");
+  if (!/^\d{6}$/.test(code)) return { status: "error", message: "Enter the 6-digit code from your authenticator app." };
+
+  const supabase = await createClient();
+  const { data: factors, error: listError } = await supabase.auth.mfa.listFactors();
+  if (listError) return { status: "error", message: authErrorMessage(listError) };
+
+  let lastError: Parameters<typeof authErrorMessage>[0] | null = null;
+  for (const factor of factors.totp) {
+    const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code });
+    if (!error) redirect("/dashboard");
+    lastError = error;
+  }
+  return {
+    status: "error",
+    message: lastError ? authErrorMessage(lastError) : "No authenticator is set up for this account.",
+  };
 }
 
 export async function resendConfirmation(_: FormState, formData: FormData): Promise<FormState> {

@@ -172,6 +172,26 @@ describe("schema (fresh database)", () => {
     });
   });
 
+  it("requires a 2FA session once the user has a verified authenticator", async () => {
+    const before = await as(db, OWNER, () => count("select 1 from accounts"));
+    expect(before).toBeGreaterThan(0);
+
+    // An unverified (half set-up) factor changes nothing.
+    await db.query("insert into auth.mfa_factors (user_id, status) values ($1, 'unverified')", [OWNER]);
+    expect(await as(db, OWNER, () => count("select 1 from accounts"))).toBe(before);
+
+    await db.query("update auth.mfa_factors set status = 'verified' where user_id = $1", [OWNER]);
+    await as(db, OWNER, async () => {
+      expect(await count("select 1 from accounts")).toBe(0); // password-only session sees nothing
+      await expect(q("insert into exchange_rates (currency, rate) values ('SGD', 12000)")).rejects.toThrow(/row-level security/);
+    });
+    expect(await as(db, OWNER, () => count("select 1 from accounts"), "aal2")).toBe(before);
+
+    // Other users without 2FA are unaffected.
+    await as(db, OTHER, () => q("select 1 from accounts"));
+    await db.query("delete from auth.mfa_factors where user_id = $1", [OWNER]);
+  });
+
   it("keeps transactions when their category is deleted", async () => {
     await as(db, OWNER, async () => {
       await q("delete from categories where id = $1", [groceries]);

@@ -15,6 +15,12 @@ const MESSAGES: Record<string, string> = {
   over_request_rate_limit:
     "Too many attempts. Please wait a few minutes and try again.",
   signup_disabled: "New sign-ups are closed.",
+  mfa_verification_failed: "That code didn't work. Check your authenticator app and try again.",
+  mfa_challenge_expired: "That took too long. Enter a fresh code.",
+  mfa_factor_name_conflict: "An authenticator with that name already exists.",
+  mfa_totp_enroll_not_enabled: "Two-factor login isn't enabled for this project yet.",
+  mfa_totp_verify_not_enabled: "Two-factor login isn't enabled for this project yet.",
+  insufficient_aal: "Enter your two-factor code first.",
 };
 
 export function authErrorMessage(error: AuthError): string {

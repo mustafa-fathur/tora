@@ -6,12 +6,14 @@ import { updateSession } from "@/lib/supabase/proxy";
 const GUEST_ONLY = ["/login", "/register", "/forgot-password"];
 // Reachable without a session. Everything else needs one.
 const PUBLIC = [...GUEST_ONLY, "/auth"];
+// Step two of login for accounts with an authenticator app.
+const TWO_FACTOR = "/two-factor";
 
 const matches = (pathname: string, routes: string[]) =>
   routes.some((r) => pathname === r || pathname.startsWith(`${r}/`));
 
 export async function proxy(request: NextRequest) {
-  const { response, claims } = await updateSession(request);
+  const { response, claims, needsTwoFactor } = await updateSession(request);
   const { pathname } = request.nextUrl;
   const signedIn = Boolean(claims);
 
@@ -21,6 +23,12 @@ export async function proxy(request: NextRequest) {
     response.cookies.getAll().forEach((c) => redirect.cookies.set(c));
     return redirect;
   };
+
+  // Until the 2FA code is entered, only the code page (and email links) are reachable.
+  if (signedIn && needsTwoFactor) {
+    return pathname === TWO_FACTOR || matches(pathname, ["/auth"]) ? response : redirectTo(TWO_FACTOR);
+  }
+  if (pathname === TWO_FACTOR) return redirectTo(signedIn ? "/dashboard" : "/login");
 
   if (pathname === "/") return redirectTo(signedIn ? "/dashboard" : "/login");
   if (!signedIn && !matches(pathname, PUBLIC)) return redirectTo("/login");

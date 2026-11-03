@@ -1,22 +1,28 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { AccountTypeManager } from "@/components/settings/account-type-manager";
 import { CategoryManager } from "@/components/settings/category-manager";
+import { DataExport } from "@/components/settings/data-export";
+import { SecuritySettings } from "@/components/settings/security-settings";
 import { RatesForm } from "@/components/settings/rates-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getAccounts, getAccountTypes, getCategories, getCurrencies, getRates, toCategoryGroups } from "@/lib/data/queries";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Settings · Tora" };
 
 export default function SettingsPage() {
   return (
     <Tabs defaultValue="categories" className="gap-6">
-      <TabsList>
+      <TabsList className="max-w-full justify-start overflow-x-auto">
         <TabsTrigger value="categories">Categories</TabsTrigger>
         <TabsTrigger value="account-types">Account types</TabsTrigger>
         <TabsTrigger value="rates">Exchange rates</TabsTrigger>
+        <TabsTrigger value="security">Security</TabsTrigger>
+        <TabsTrigger value="data">Data</TabsTrigger>
       </TabsList>
       <TabsContent value="categories" className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground">
@@ -43,6 +49,15 @@ export default function SettingsPage() {
           <Rates />
         </Suspense>
       </TabsContent>
+      <TabsContent value="security" className="flex flex-col gap-4">
+        <Suspense fallback={<Skeleton className="h-40 w-full max-w-xl rounded-xl" />}>
+          <Security />
+        </Suspense>
+      </TabsContent>
+      <TabsContent value="data" className="flex flex-col gap-4">
+        <p className="text-sm text-muted-foreground">Download your data whenever you like.</p>
+        <DataExport />
+      </TabsContent>
     </Tabs>
   );
 }
@@ -68,4 +83,12 @@ async function Rates() {
       used={used}
     />
   );
+}
+
+async function Security() {
+  await connection();
+  const supabase = await createClient();
+  const { data } = await supabase.auth.mfa.listFactors();
+  const factors = (data?.totp ?? []).map((f) => ({ id: f.id, name: f.friendly_name ?? "Authenticator", createdAt: f.created_at }));
+  return <SecuritySettings factors={factors} />;
 }

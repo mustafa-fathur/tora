@@ -21,6 +21,11 @@ export async function createDb() {
     create function auth.uid() returns uuid language sql stable as
       $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
     grant execute on function auth.uid() to anon, authenticated;
+    -- 2FA: the JWT's assurance level and Supabase's factor table.
+    create function auth.jwt() returns jsonb language sql stable as
+      $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
+    grant execute on function auth.jwt() to anon, authenticated;
+    create table auth.mfa_factors (id uuid primary key default gen_random_uuid(), user_id uuid, status text);
     -- Supabase grants these by default on new objects in public.
     alter default privileges in schema public grant all on tables to anon, authenticated;
     alter default privileges in schema public grant all on functions to anon, authenticated;
@@ -32,12 +37,15 @@ export async function applyMigrations(db: PGlite, files = migrationFiles()) {
   for (const f of files) await db.exec(fs.readFileSync(path.join(MIGRATIONS, f), "utf8"));
 }
 
-// Runs fn as a signed-in user (or as anon when userId is null).
-export async function as<T>(db: PGlite, userId: string | null, fn: () => Promise<T>) {
+// Runs fn as a signed-in user (or as anon when userId is null). `aal` is the
+// session's assurance level: "aal2" after passing a 2FA code.
+export async function as<T>(db: PGlite, userId: string | null, fn: () => Promise<T>, aal: "aal1" | "aal2" = "aal1") {
+  const claims = JSON.stringify(userId ? { sub: userId, aal } : {});
   await db.exec(
-    userId
+    (userId
       ? `set role authenticated; select set_config('request.jwt.claim.sub', '${userId}', false);`
-      : `set role anon; select set_config('request.jwt.claim.sub', '', false);`,
+      : `set role anon; select set_config('request.jwt.claim.sub', '', false);`) +
+      `select set_config('request.jwt.claims', '${claims}', false);`,
   );
   try {
     return await fn();

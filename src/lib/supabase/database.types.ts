@@ -533,6 +533,7 @@ export type Database = {
       }
     }
     Functions: {
+      mfa_satisfied: { Args: never; Returns: boolean }
       seed_default_account_types: {
         Args: { p_user_id: string }
         Returns: undefined
