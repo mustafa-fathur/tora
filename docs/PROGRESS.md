@@ -28,6 +28,7 @@ Newest session at the top. Each entry has: done, next, open questions.
 - **Exchange rates** (Settings): manual or "Fetch today's rates"; all totals convert foreign accounts.
 - **CSV import:** column guessing (English + Indonesian), date/amount formats (DB/CR, both number styles), preview, duplicate skipping, categories learned from past descriptions, review + undo. "Uncategorized" filter on Transactions.
 - **PWA:** manifest + icons (Add to Home Screen).
+- **CI fix:** `npm run typecheck` now runs `next typegen` first (fresh checkouts have no generated `PageProps`/`LayoutProps`), and DB test setup gets a 60s timeout for cold runners. Verified with the full CI sequence in a clean clone (`npm ci` → lint → typecheck → test → build).
 - Tests: unit tests for all money logic and CSV parsing; DB tests for the new tables; Playwright E2E journey on the local Supabase stack (16/16 passing, no browser errors). Visual check by screenshots (desktop + 390px phone); fixed a dialog overflow on phones and noisy budget rows.
 
 ## 2026-11-02: Session 1c (Phase E, auth)
