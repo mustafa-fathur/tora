@@ -14,7 +14,7 @@ This is the canonical instruction file. `CLAUDE.md` only imports it. Read `docs/
 
 ## Project summary
 
-Tora ("tiger" in Sumatra) is an **invite-only personal finance tracker** with dashboard, accounts, transactions, cash flow, budgets, recurring, goals, reports, insights, multi-currency and CSV import. It is (the owner now, maybe a few invited friends later; each user sees only their own data) for accounts, transactions, categories, budgets, recurring items, net worth, and reports. Public sign-up is off. The owner is in Indonesia, so data entry is **manual first, CSV import later**. There's no landing page: the first screen is `/login`. Feature ideas come from Monarch Money, but **branding, UI, and copy must be original**.
+Tora ("tiger" in Sumatra) is an **invite-only personal finance tracker**: dashboard, accounts, transactions, cash flow, budgets, recurring items, goals, reports, insights, multi-currency and CSV import. Users are the owner now, maybe a few invited friends later; each user sees only their own data. Public sign-up is off. The owner is in Indonesia, so data entry is **manual first, CSV import later**. There's no landing page: the first screen is `/login`. Feature ideas come from Monarch Money, but **branding, UI, and copy must be original**.
 
 More detail is in `docs/` (start at `docs/README.md`).
 
@@ -34,7 +34,7 @@ More detail is in `docs/` (start at `docs/README.md`).
 npm run dev      # http://localhost:5000
 npm run build    # production build + type check
 npm run lint     # eslint
-npm run typecheck
+npm run typecheck   # next typegen (route types like PageProps) + tsc
 npm test         # Vitest: unit tests + database tests (migrations + RLS in PGlite)
 npx supabase start && npm run test:e2e   # Playwright E2E against the LOCAL Supabase (Docker); then: npx supabase stop
 npx shadcn@latest add <component>   # add shadcn components/blocks
@@ -50,7 +50,7 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - Code lives in `src/`: routes in `src/app`, shared UI in `src/components` (`ui/` holds shadcn components), and helpers in `src/lib`.
 - **Theme:** light only. Primary = logo green `#115C3B` (`oklch(0.4218 0.0896 158.83)`). Tokens live in `src/app/globals.css`. Use the tokens (`bg-primary`, `text-muted-foreground`, …), never raw hex values in components.
 - The logo is `public/brand/tora-logo.png`, and the favicon is `src/app/icon.png`.
-- Money: store amounts as integers in minor units, or as `numeric`. Never use floats. Default currency is IDR (not confirmed yet; ask the owner before putting it in the schema).
+- Money: stored as `numeric(18,2)`, never floats. Default and base currency is **IDR** (confirmed); other currencies convert via `exchange_rates`.
 - In Server Components, call `await connection()` (from `next/server`) before Supabase session or data calls. Supabase uses `Date.now()`, which `cacheComponents` forbids during prerendering. Read request-time data inside `<Suspense>`.
 - New signed-in pages go in `src/app/(app)/<section>/` (sidebar shell) and are private by default (`proxy.ts` only lets `PUBLIC` paths through). Add nav entries in `src/components/app/nav.ts`.
 - **Data:** reads go through `src/lib/data/queries.ts` (wrapped in `cache()`, call `connection()`). Writes are server actions in `src/app/(app)/<section>/actions.ts` that validate input, return `ActionState`, and call `refresh()` from `next/cache`. RLS does the authorization.

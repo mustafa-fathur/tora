@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start -p ${PORT:-5000}",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts"
