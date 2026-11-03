@@ -4,13 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { MAIN_NAV, SECONDARY_NAV, type NavItem } from "@/components/app/nav";
+import { NAV_GROUPS, SECONDARY_NAV, type NavItem } from "@/components/app/nav";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -35,7 +36,9 @@ export function AppSidebar({ user }: { user: React.ReactNode }) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavGroup items={MAIN_NAV} />
+        {NAV_GROUPS.map((g) => (
+          <NavGroup key={g.label} label={g.label} items={g.items} />
+        ))}
         <NavGroup items={SECONDARY_NAV} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>{user}</SidebarFooter>
@@ -44,12 +47,13 @@ export function AppSidebar({ user }: { user: React.ReactNode }) {
   );
 }
 
-function NavGroup({ items, className }: { items: NavItem[]; className?: string }) {
+function NavGroup({ items, label, className }: { items: NavItem[]; label?: string; className?: string }) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (
     <SidebarGroup className={className}>
+      {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map(({ title, href, icon: Icon }) => {
