@@ -7,6 +7,9 @@ export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
     environment: "node",
-    testTimeout: 30_000, // PGlite boots a real Postgres in WebAssembly
+    // PGlite boots a real Postgres in WebAssembly and runs every migration in
+    // beforeAll; a cold start on CI can take well over the 10s default.
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
   },
 });
