@@ -80,7 +80,7 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - Never use the Supabase `service_role` / secret key in the Next.js app, on the server or the client.
 - Never change the database by hand in the dashboard. Every schema change is a migration in `supabase/migrations/`.
 - Never create a table without RLS enabled, an owner-only policy scoped to `auth.uid()`, **and** the restrictive `"Require 2FA when enabled"` policy using `(select public.mfa_satisfied())` (see migration `…_require_mfa_when_enrolled.sql`), plus a DB test for both.
-- Never commit anything from `reference/` (screenshots of other products) or copy their visual identity; see `docs/DESIGN.md`.
+- Never put screenshots of other products in the repo (share them by a path outside it) or copy their visual identity; see `docs/DESIGN.md`.
 - Never add dark mode, a theme toggle, or remove `@custom-variant dark (&:is(.dark *))` from `globals.css`. That line keeps shadcn's `dark:` classes from following the OS setting.
 - Never copy Monarch Money's design, names, copy, or assets.
 - Never change the decided stack, add dependencies, design schema, or do anything costly or hard to undo without asking first.

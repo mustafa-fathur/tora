@@ -22,7 +22,7 @@ Newest session at the top. Each entry has: done, next, open questions.
 
 **Done**
 - CI fix (`next typegen` before `tsc`; 60 s DB-test setup timeout).
-- `reference/` gitignored; `docs/DESIGN.md` (borrow-vs-own rules, layout, scope guard).
+- `docs/DESIGN.md` (borrow-vs-own rules, layout, scope guard). Reference screenshots were temporary and never committed.
 - Calendar page (month/week/day, today tint, spending heat, upcoming/overdue bills, "add on this day").
 - Transactions: day totals, summary panel (wide screens), CSV export; phones use short amounts (`Rp 4,6 jt`).
 - Accounts: net worth overview (change over 3/6/12 months, owned-vs-owed bar, trend chart), section totals; net worth now counts archived accounts the same way as the dashboard.

@@ -1,7 +1,7 @@
 # Design notes
 
 ## Inspired, not copied
-Monarch Money is the feature inspiration. Reference screenshots stay in `reference/`, which is **gitignored and never published**.
+Monarch Money is the feature inspiration. Screenshots of it (or any other product) are shared by a path **outside the repo** and never committed.
 
 | Borrow (generic patterns) | Never borrow (their identity) |
 |---|---|
