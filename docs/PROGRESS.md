@@ -14,6 +14,10 @@ Newest session at the top. Each entry has: done, next, open questions.
 
 **Future plans:** see `docs/PRD.md` → Future (mobile app, email capture, chat capture, MCP).
 
+## 2026-11-03: Session 3b (demo data)
+- `scripts/demo-data.sh` + `supabase/scripts/demo-seed.sql` (≈6 months of fake Indonesian finance: 8 accounts incl. USD, credit card, paylater, investment; ~580 transactions; budgets with over/warning months; 10 recurring items incl. one overdue; 3 goals) and `supabase/scripts/reset-user-data.sql` (back to a fresh account; keeps login, 2FA, profile).
+- Tested on the local stack: seed → realistic balances (no negative bank/wallet) → screenshots of every page, no browser errors → reset → seed again.
+
 ## 2026-11-03: Session 3 (polish round P)
 
 **Done**

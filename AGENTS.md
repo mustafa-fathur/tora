@@ -37,6 +37,7 @@ npm run lint     # eslint
 npm run typecheck   # next typegen (route types like PageProps) + tsc
 npm test         # Vitest: unit tests + database tests (migrations + RLS in PGlite)
 npx supabase start && npm run test:e2e   # Playwright E2E against the LOCAL Supabase (Docker); then: npx supabase stop
+scripts/demo-data.sh seed|reset <email> --local|--linked   # fake demo data for one user / reset to a fresh account (asks to confirm for --linked)
 npx shadcn@latest add <component>   # add shadcn components/blocks
 npm exec -- supabase migration new <name>   # new SQL migration in supabase/migrations
 npm exec -- supabase db push --linked --dry-run   # preview pending migrations
