@@ -37,7 +37,7 @@ Me, in Indonesia. Later, possibly **a few invited friends** (invite-only, each s
 | A–G | Docs, theme, GitHub, Supabase, Netlify, auth, schema, shell, accounts, transactions | ✅ |
 | I–M | Dashboard, cash flow, budgets, recurring, goals, reports, insights, FX, CSV import, PWA | ✅ |
 | **P** (polish) | Calendar (month/week/day + upcoming bills), transaction day totals + summary panel + CSV export, accounts net worth trend + section totals + owned-vs-owed bar, data export (CSV/JSON), two-factor login (authenticator app), logo 1.2 MB → 28 KB, grouped sidebar | ✅ → **2-week use period** |
-| H | Ops: private `tora-ops` repo, keep-alive + encrypted nightly backups (GitHub artifacts, 90 days) | built + restore-tested locally; owner setup in progress |
+| H | Ops: private `tora-ops` repo, keep-alive + encrypted nightly backups (GitHub artifacts, 90 days) | ✅ live since 2026-11-03 |
 | N | Custom SMTP + friend invites | deferred |
 
 ## Future (owner's plans, not scheduled)

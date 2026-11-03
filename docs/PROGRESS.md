@@ -10,7 +10,7 @@ Newest session at the top. Each entry has: done, next, open questions.
 1. Supabase dashboard → Authentication → Multi-Factor: make sure **TOTP (authenticator app)** is enabled, then turn on 2FA in Tora → Settings → Security.
 2. Use Tora daily for 2 weeks; note anything odd.
 
-**Deferred by the owner:** SMTP + invites. **In progress:** Phase H backups (see session 3c).
+**Deferred by the owner:** SMTP + invites. **Done:** Phase H backups + keep-alive (see session 3c).
 
 **Future plans:** see `docs/PRD.md` → Future (mobile app, email capture, chat capture, MCP).
 
@@ -18,7 +18,8 @@ Newest session at the top. Each entry has: done, next, open questions.
 - Demo data cleared from the owner's account; owner turned on 2FA (1 authenticator; a second one is recommended).
 - `~/projects/tora-ops` (separate private repo, not pushed yet): `.github/workflows/ops.yml` (keep-alive every 3 days, nightly encrypted backup → artifacts, 90 days) + README with the restore guide.
 - Restore tested locally: dump → encrypt → decrypt → restore into an empty Supabase → identical counts, balances, logins and policies.
-- **Owner setup pending:** create the private GitHub repo and push, install age and create the key, add secrets (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_DB_URL`) and the `AGE_RECIPIENT` variable, run once by hand, test a decrypt.
+- ✅ Owner set up the private `tora-ops` repo, age key (private key in the owner's password manager + `~/.config/tora/backup-key.txt`), secrets and `AGE_RECIPIENT`. First manual run: keep-alive ✅, backup ✅ (artifact kept 90 days). Owner decrypted it with their key: `roles.sql`, `schema.sql`, `data.sql` present. **Phase H done.**
+- Schedules: backup daily 02:00 WIB, keep-alive every 3 days. GitHub emails the owner if a run fails. Restore guide: `tora-ops/README.md`.
 
 ## 2026-11-03: Session 3b (demo data)
 - `scripts/demo-data.sh` + `supabase/scripts/demo-seed.sql` (≈6 months of fake Indonesian finance: 8 accounts incl. USD, credit card, paylater, investment; ~580 transactions; budgets with over/warning months; 10 recurring items incl. one overdue; 3 goals) and `supabase/scripts/reset-user-data.sql` (back to a fresh account; keeps login, 2FA, profile).
