@@ -34,6 +34,7 @@ erDiagram
 - **Goals:** a target amount and optional date. Progress = the linked account's balance, or `saved_amount` if no account is linked.
 - **Exchange rates:** one latest rate per foreign currency per user (`1 CODE = rate IDR`), typed by hand or fetched from open.er-api.com. Totals (net worth, cash flow, budgets) convert with today's rate; currencies without a rate are left out and flagged in the UI.
 - **CSV imports:** imported rows share an `import_id`, so an import can be reviewed or undone at once. Duplicates (same account, date, amount, description) are skipped by default.
+- **Two-factor login:** once a user has a verified authenticator (TOTP factor), a restrictive policy "Require 2FA when enabled" on every user table (via `public.mfa_satisfied()`) only allows sessions at `aal2`. Users without 2FA are unaffected.
 - **Profiles:** one per user (base currency `IDR`, timezone `Asia/Jakarta`), created by a trigger on sign-up.
 
 ## Not yet (ideas)

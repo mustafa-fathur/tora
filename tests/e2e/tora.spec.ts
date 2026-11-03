@@ -2,7 +2,10 @@ import path from "node:path";
 
 import { expect, type Locator, type Page, test } from "@playwright/test";
 
+import { readFile } from "node:fs/promises";
+
 import { TEST_USER } from "./local-supabase";
+import { totp } from "./totp";
 
 // One realistic journey through every feature, in order, sharing one session.
 // Runs against a fresh user on the local Supabase stack (see global-setup.ts).
@@ -146,8 +149,8 @@ test("transactions: expense, income, refund and transfer update totals and balan
   await quickAdd({ mode: "transfer", amount: "300.000", account: "BCA", to: "Visa" });
 
   await page.goto("/transactions");
-  await expect(page.getByText("Lunch at warung")).toBeVisible();
-  await expect(page.getByText("Transfer to Visa")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Lunch at warung/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Transfer to Visa/ })).toBeVisible();
   // Income 5M; spending 45k - 10k refund = 35k.
   const summary = page.locator("div.grid-cols-3").first();
   await expect(summary).toContainText(rp("5.000.000"));
@@ -171,14 +174,14 @@ test("transactions: edit, filter, search and delete", async () => {
   await page.getByLabel("Search transactions").fill("salary");
   await page.getByLabel("Search transactions").press("Enter");
   await expect(page).toHaveURL(/q=salary/);
-  await expect(page.getByText("November salary")).toBeVisible();
-  await expect(page.getByText("Lunch at warung")).toBeHidden();
+  await expect(page.getByRole("button", { name: /November salary/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Lunch at warung/ })).toBeHidden();
   await page.getByRole("button", { name: "Clear" }).click();
 
   await page.getByRole("button", { name: /Returned item/ }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Delete transaction" }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
-  await expect(page.getByText("Returned item")).toBeHidden();
+  await expect(page.getByRole("button", { name: /Returned item/ })).toBeHidden();
 });
 
 test("accounts: update balance records an adjustment", async () => {
@@ -267,7 +270,7 @@ test("CSV import: map, preview, import, review and undo", async () => {
 
   await page.getByRole("link", { name: "Review them" }).click();
   await expect(page.getByText(/Reviewing 3 imported transactions/)).toBeVisible();
-  await expect(page.getByText("INDOMARET POINT")).toBeVisible();
+  await expect(page.getByRole("button", { name: /INDOMARET POINT/ })).toBeVisible();
   const reviewUrl = page.url();
 
   // Importing the same file again flags everything as duplicates.
@@ -283,7 +286,7 @@ test("CSV import: map, preview, import, review and undo", async () => {
   await page.getByRole("button", { name: "Undo import" }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Undo import" }).click();
   await expect(page).toHaveURL(/\/transactions$/);
-  await expect(page.getByText("INDOMARET POINT")).toBeHidden();
+  await expect(page.getByRole("button", { name: /INDOMARET POINT/ })).toBeHidden();
 });
 
 test("cash flow, reports and dashboard show the numbers", async () => {
@@ -303,6 +306,110 @@ test("cash flow, reports and dashboard show the numbers", async () => {
   await expect(page.getByText("Lunch at warung")).toBeVisible();
   await expect(page.getByText("New laptop")).toBeVisible();
   await expect(page.getByText(/Food & Drinks/).first()).toBeVisible();
+});
+
+test("sidebar is grouped into sections", async () => {
+  await page.goto("/dashboard");
+  const nav = page.locator("[data-sidebar=sidebar]");
+  for (const label of ["Overview", "Money", "Planning", "Insights"]) await expect(nav.getByText(label, { exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Calendar" })).toBeVisible();
+});
+
+test("calendar: month, week and day views with totals and upcoming bills", async () => {
+  await page.goto("/calendar");
+  await expect(page.getByRole("radio", { name: "month" })).toHaveAttribute("aria-checked", "true");
+  // Today's cell carries today's spending (lunch 50k + internet 350k = 400k).
+  const todayCell = page.getByRole("link", { name: /spent Rp\s?400\.000/ });
+  await expect(todayCell).toBeVisible();
+
+  // The internet bill was marked paid, so it's due again next month.
+  await page.getByRole("button", { name: "Next month" }).click();
+  await expect(page.getByRole("link", { name: /1 due/ }).first()).toBeVisible();
+  await expect(page.getByText("Internet").first()).toBeVisible();
+  await page.getByRole("button", { name: "Today" }).click();
+
+  await page.getByRole("radio", { name: "week" }).click();
+  await expect(page).toHaveURL(/view=week/);
+  await expect(page.getByText("Lunch at warung")).toBeVisible();
+
+  await page.getByRole("radio", { name: "day" }).click();
+  await expect(page).toHaveURL(/view=day/);
+  await expect(page.getByRole("button", { name: /Lunch at warung/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Add on this day" })).toBeVisible();
+});
+
+test("transactions: summary panel, day totals and CSV export", async () => {
+  await page.goto("/transactions");
+  const summary = page.getByRole("region", { name: "Summary" });
+  await expect(summary).toContainText("Largest expense");
+  await expect(summary).toContainText(rp("350.000"));
+
+  const [download] = await Promise.all([page.waitForEvent("download"), summary.getByRole("link", { name: "Export CSV" }).click()]);
+  expect(download.suggestedFilename()).toMatch(/^tora-transactions-\d{4}-\d{2}\.csv$/);
+  const csv = await readFile(await download.path(), "utf8");
+  expect(csv).toContain("Date,Time,Account,Currency,Type,Group,Category,Description,Notes,Amount");
+  expect(csv).toContain("Lunch at warung");
+  expect(csv).toContain(",-50000");
+});
+
+test("settings: export everything as JSON", async () => {
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Data" }).click();
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("link", { name: "Download" }).nth(1).click(),
+  ]);
+  const data = JSON.parse(await readFile(await download.path(), "utf8"));
+  expect(data.app).toBe("Tora");
+  expect(data.accounts.map((a: { name: string }) => a.name).sort()).toEqual(["BCA", "Visa", "Wise USD"]);
+  expect(data.transactions.length).toBeGreaterThan(3);
+});
+
+test("accounts: net worth overview with trend and section totals", async () => {
+  await page.goto("/accounts");
+  const overview = page.getByRole("region", { name: "Net worth" });
+  await expect(overview).toContainText("over 6 months");
+  await expect(overview.getByRole("img", { name: "What you own versus what you owe" })).toBeVisible();
+  await overview.getByRole("radio", { name: "12 months" }).click();
+  await expect(page).toHaveURL(/months=12/);
+  await expect(page.getByText("over 12 months")).toBeVisible();
+});
+
+test("two-factor login: set up, required at login, then removed", async () => {
+  test.setTimeout(120_000);
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Security" }).click();
+  await page.getByRole("button", { name: "Set up authenticator app" }).click();
+  const secret = (await page.getByTestId("totp-secret").innerText()).trim();
+  const setupWindow = Math.floor(Date.now() / 30_000);
+  await page.getByLabel(/Enter the 6-digit code/).fill(totp(secret));
+  await page.getByRole("button", { name: "Turn on" }).click();
+  await expect(page.getByText(/^On\./)).toBeVisible();
+
+  // Log out and back in: the password alone isn't enough any more.
+  await page.getByRole("button", { name: "Log out" }).click();
+  await page.getByLabel("Email").fill(TEST_USER.email);
+  await page.getByLabel("Password", { exact: true }).fill(TEST_USER.password);
+  await page.getByRole("button", { name: "Log in" }).click();
+  await expect(page).toHaveURL(/\/two-factor$/);
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/two-factor$/); // can't skip the code
+  await page.getByLabel("Code").fill("000000");
+  await page.getByRole("button", { name: "Verify" }).click();
+  await expect(page.getByText(/code didn.t work/)).toBeVisible();
+  // Use a code from a later 30-second window than the setup code, in case reuse is refused.
+  const wait = (setupWindow + 1) * 30_000 - Date.now();
+  if (wait > 0) await page.waitForTimeout(wait + 500);
+  await page.getByLabel("Code").fill(totp(secret));
+  await page.getByRole("button", { name: "Verify" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+
+  // Turn it off again for the remaining steps.
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Security" }).click();
+  await page.getByRole("button", { name: /Remove Authenticator/ }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Remove" }).click();
+  await expect(page.getByText(/^Off\./)).toBeVisible();
 });
 
 test("PWA manifest is public", async () => {

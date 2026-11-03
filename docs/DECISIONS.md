@@ -41,3 +41,9 @@
 | 2026-11-03 | E2E: Playwright against the **local** Supabase stack (Docker), one serial journey spec, run locally with `npm run test:e2e` (not in CI) | Real end-to-end confidence without touching the hosted project or adding CI complexity |
 | 2026-11-03 | Insights are rule-based (spending pace vs last month, biggest increase, over budget, savings rate, upcoming bills, uncategorized) | Useful "advice" with no AI cost or data leaving Supabase |
 | 2026-11-03 | Semantic chart colors: income = brand green, spending = warm coral (`--chart-income`, `--chart-expense`) | Money in vs out must be distinguishable at a glance |
+| 2026-11-03 | Polish round P with a fixed 7-item scope, then a 2-week use period | Owner asked for a clear scope to tame perfectionism |
+| 2026-11-03 | Monarch screenshots are reference only (`reference/` gitignored); borrow generic patterns, never visual identity or wording (`docs/DESIGN.md`) | Avoid any plagiarism allegation, especially in a public repo |
+| 2026-11-03 | Calendar page (month/week/day, Monday-start, spending heat tint, upcoming bills from Recurring) | Not in Monarch; glanceable daily view the owner asked for |
+| 2026-11-03 | Two-factor login via Supabase TOTP; enforced in `proxy.ts` and in the DB (restrictive RLS on aal2 when a verified factor exists) | Money app; DB enforcement holds even if app code has a bug. No backup codes in Supabase, so the UI suggests a second authenticator |
+| 2026-11-03 | Exports: CSV of the current transaction view (`/export/transactions`) and everything as JSON (`/export/all`), formula-injection-safe CSV | The owner's own copy of their data; not a substitute for backups |
+| 2026-11-03 | Typecheck runs `next typegen` first | Fresh CI checkouts don't have generated `PageProps`/`LayoutProps` |

@@ -2,18 +2,30 @@
 
 Newest session at the top. Each entry has: done, next, open questions.
 
-## ▶ Start here (state at end of 2026-11-03)
+## ▶ Start here (state at end of 2026-11-03, session 3)
 
-**All product features are built and tested** (phases A–G, I–M, PWA). The hosted DB has 4 migrations applied. Tests: 66 unit/database tests (`npm test`, also in CI) + 16 browser E2E steps (`npm run test:e2e`, local Supabase).
+**Polish round P is done** (scope in `docs/PRD.md`). We're now in the owner's **2-week use period**: fix bugs the owner reports, don't start new features. Hosted DB has 5 migrations. Tests: 75 unit/database tests (`npm test`, in CI) + 22 browser E2E steps (`npm run test:e2e`, local Supabase).
 
-**Next (in order)**
-1. **Phase H: backups + keep-alive** (private `tora-ops` repo). Do this before entering lots of real data: the free tier has no backups.
-2. The owner tests the new features on production with real use, and reports anything odd.
-3. Later: custom SMTP + friend invites; optional AI advice; investment holdings; historical FX rates; offline support; native app.
+**Owner to-do**
+1. Supabase dashboard → Authentication → Multi-Factor: make sure **TOTP (authenticator app)** is enabled, then turn on 2FA in Tora → Settings → Security.
+2. Use Tora daily for 2 weeks; note anything odd.
 
-**Open questions**
-- Backup destination for Phase H (private repo artifacts vs. Google Drive vs. Cloudflare R2).
-- Optimize the 1.2 MB logo PNG (and add an SVG?).
+**Deferred by the owner (keep reminding):** Phase H backups + keep-alive (free tier: no backups, pauses after 7 idle days), SMTP + invites.
+
+**Future plans:** see `docs/PRD.md` → Future (mobile app, email capture, chat capture, MCP).
+
+## 2026-11-03: Session 3 (polish round P)
+
+**Done**
+- CI fix (`next typegen` before `tsc`; 60 s DB-test setup timeout).
+- `reference/` gitignored; `docs/DESIGN.md` (borrow-vs-own rules, layout, scope guard).
+- Calendar page (month/week/day, today tint, spending heat, upcoming/overdue bills, "add on this day").
+- Transactions: day totals, summary panel (wide screens), CSV export; phones use short amounts (`Rp 4,6 jt`).
+- Accounts: net worth overview (change over 3/6/12 months, owned-vs-owed bar, trend chart), section totals; net worth now counts archived accounts the same way as the dashboard.
+- Settings → Data: all transactions (CSV), everything (JSON).
+- Two-factor login: Settings → Security (QR + setup key), `/two-factor` step, proxy + DB enforcement (migration `20261103070718`, applied after a local data dump).
+- Logo 1.2 MB → 28 KB. Sidebar grouped (Overview · Money · Planning · Insights).
+- Tests: +calendar/export/compact-money unit tests, 2FA DB test, E2E for calendar, exports, accounts overview, sidebar, and real TOTP 2FA (22/22). Visual check at 1366 px and 390 px.
 
 ## 2026-11-03: Session 2 (phases I–M)
 

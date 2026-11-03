@@ -56,6 +56,9 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - **Data:** reads go through `src/lib/data/queries.ts` (wrapped in `cache()`, call `connection()`). Writes are server actions in `src/app/(app)/<section>/actions.ts` that validate input, return `ActionState`, and call `refresh()` from `next/cache`. RLS does the authorization.
 - **Tests** (keep them light): unit tests for pure helpers in `tests/unit/`; database tests in `tests/db/` run every migration in PGlite with a stubbed `auth` schema. A new table needs an RLS isolation check there. CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and build on every push and PR. Browser E2E (`tests/e2e/tora.spec.ts`, one serial journey through every feature) runs locally only, against the local Supabase stack; it refuses to run against a non-local URL. Extend it when you add a feature. On WSL without Chromium system libs, unpack `libnspr4 libnss3 libasound2t64` with `apt-get download` + `dpkg-deb -x` and set `LD_LIBRARY_PATH`.
 - Keep money math in pure functions in `src/lib/finance/` with unit tests; pages only fetch and render.
+- **Scope:** follow `docs/DESIGN.md` (scope guard). New ideas go to the parking lot in `docs/PRD.md` unless the owner says otherwise.
+- Lists are responsive rows, not tables. Check pages at 390 px wide.
+- Auth flow: password → `/two-factor` (if the user has an authenticator) → app. `proxy.ts` keeps aal1 sessions with a factor on `/two-factor`.
 - After each migration, run `npm run db:types` to regenerate `src/lib/supabase/database.types.ts`.
 - Parse typed amounts with `parseAmount()` (Indonesian style: `1.250.000`, `10,50`).
 - Show money with `formatMoney()` from `src/lib/money.ts`. Don't format numbers by hand.
@@ -75,7 +78,8 @@ If the build fails with errors about `.next/dev/types`, run `rm -rf .next` and b
 - Never commit `.env.local` or any real key. Only `.env.example` (placeholders) is committed.
 - Never use the Supabase `service_role` / secret key in the Next.js app, on the server or the client.
 - Never change the database by hand in the dashboard. Every schema change is a migration in `supabase/migrations/`.
-- Never create a table without RLS enabled and policies scoped to `auth.uid()`.
+- Never create a table without RLS enabled, an owner-only policy scoped to `auth.uid()`, **and** the restrictive `"Require 2FA when enabled"` policy using `(select public.mfa_satisfied())` (see migration `…_require_mfa_when_enrolled.sql`), plus a DB test for both.
+- Never commit anything from `reference/` (screenshots of other products) or copy their visual identity; see `docs/DESIGN.md`.
 - Never add dark mode, a theme toggle, or remove `@custom-variant dark (&:is(.dark *))` from `globals.css`. That line keeps shadcn's `dark:` classes from following the OS setting.
 - Never copy Monarch Money's design, names, copy, or assets.
 - Never change the decided stack, add dependencies, design schema, or do anything costly or hard to undo without asking first.
