@@ -17,9 +17,10 @@ type Props = {
   partners: Transaction[]; // other legs of transfers, for editing
   accounts: Account[];
   groups: CategoryGroup[];
+  dayTotals?: Record<string, number>; // net income − spending per day (IDR)
 };
 
-export function TransactionList({ transactions, partners, accounts, groups }: Props) {
+export function TransactionList({ transactions, partners, accounts, groups, dayTotals }: Props) {
   const [editing, setEditing] = useState<Transaction | null>(null);
 
   const accountById = new Map(accounts.map((a) => [a.id, a]));
@@ -44,7 +45,14 @@ export function TransactionList({ transactions, partners, accounts, groups }: Pr
       <div className="flex flex-col gap-6">
         {[...days].map(([day, rows]) => (
           <section key={day} aria-label={formatDay(day)}>
-            <h2 className="mb-1 px-1 text-sm font-medium text-muted-foreground">{formatDay(day)}</h2>
+            <h2 className="mb-1 flex justify-between gap-2 px-1 text-sm font-medium text-muted-foreground">
+              <span>{formatDay(day)}</span>
+              {dayTotals?.[day] ? (
+                <span className={cn("tabular-nums", dayTotals[day] > 0 && "text-primary")}>
+                  {formatMoney(dayTotals[day], "IDR", { signed: true })}
+                </span>
+              ) : null}
+            </h2>
             <ul className="divide-y rounded-xl border bg-card">
               {rows.map((t) => {
                 const account = accountById.get(t.account_id);

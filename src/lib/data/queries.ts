@@ -74,9 +74,23 @@ export type TransactionFilters = {
   q?: string;
 };
 
+// Transactions matching the filters, newest first (capped by `limit`, default 1000).
 export async function getTransactions(f: TransactionFilters): Promise<Transaction[]> {
   await connection();
   const supabase = await createClient();
+  const { data, error } = await transactionsQuery(supabase, f).limit(f.limit ?? 1000);
+  if (error) throw error;
+  return data;
+}
+
+// Every matching transaction, without the 1000-row cap (for exports).
+export async function getAllTransactions(f: TransactionFilters): Promise<Transaction[]> {
+  await connection();
+  const supabase = await createClient();
+  return fetchAll((from, to) => transactionsQuery(supabase, f).order("id").range(from, to));
+}
+
+function transactionsQuery(supabase: Awaited<ReturnType<typeof createClient>>, f: TransactionFilters) {
   let query = supabase
     .from("transactions")
     .select("*")
@@ -84,8 +98,7 @@ export async function getTransactions(f: TransactionFilters): Promise<Transactio
     .lt("date", f.end)
     .order("date", { ascending: false })
     .order("time", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .limit(f.limit ?? 1000);
+    .order("created_at", { ascending: false });
   if (f.accountId) query = query.eq("account_id", f.accountId);
   if (f.uncategorized) query = query.is("category_id", null).eq("kind", "regular");
   else if (f.categoryIds?.length) query = query.in("category_id", f.categoryIds);
@@ -94,9 +107,7 @@ export async function getTransactions(f: TransactionFilters): Promise<Transactio
     const term = f.q.replace(/[%_,()]/g, " ").trim();
     if (term) query = query.or(`description.ilike.%${term}%,notes.ilike.%${term}%`);
   }
-  const { data, error } = await query;
-  if (error) throw error;
-  return data;
+  return query;
 }
 
 export const getCurrencies = cache(async () => {
@@ -210,3 +221,33 @@ export const getGoals = cache(async () => {
   if (error) throw error;
   return data;
 });
+
+// Everything the signed-in user owns, for "Export everything".
+export async function getEverything() {
+  await connection();
+  const supabase = await createClient();
+  const table = <T>(name: "accounts" | "account_types" | "categories" | "budgets" | "recurring_items" | "goals" | "exchange_rates" | "profiles") =>
+    fetchAll<T>((from, to) => supabase.from(name).select("*").range(from, to) as unknown as PromiseLike<{ data: T[] | null; error: unknown }>);
+  const [profile, accounts, accountTypes, categories, budgets, recurring, goals, rates, transactions] = await Promise.all([
+    table("profiles"),
+    table("accounts"),
+    table("account_types"),
+    table("categories"),
+    table("budgets"),
+    table("recurring_items"),
+    table("goals"),
+    table("exchange_rates"),
+    getAllTransactions({ start: "1900-01-01", end: "9999-12-31" }),
+  ]);
+  return {
+    profile: profile[0] ?? null,
+    accounts,
+    account_types: accountTypes,
+    categories,
+    transactions,
+    budgets,
+    recurring_items: recurring,
+    goals,
+    exchange_rates: rates,
+  };
+}

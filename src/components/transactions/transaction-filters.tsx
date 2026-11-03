@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, FileUp, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, FileUp, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -16,22 +16,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UNCATEGORIZED } from "@/lib/data/transaction-filters";
 import { formatMonth, shiftMonth } from "@/lib/finance/dates";
 import type { Account, CategoryGroup } from "@/lib/finance/types";
 
 export type FilterValues = { month: string; account?: string; category?: string; q?: string };
-
-export const UNCATEGORIZED = "uncategorized";
 
 // Month switcher + filters. State lives in the URL (?month=&account=&category=&q=).
 export function TransactionFilters({
   values,
   accounts,
   groups,
+  exportHref,
 }: {
   values: FilterValues;
   accounts: Account[];
   groups: CategoryGroup[];
+  exportHref: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -49,11 +50,19 @@ export function TransactionFilters({
   return (
     <div className="flex flex-col gap-3" aria-busy={pending}>
       <div className="flex items-center gap-1">
-        <Button asChild variant="outline" size="sm" className="order-last ml-auto">
-          <Link href="/transactions/import">
-            <FileUp /> Import CSV
-          </Link>
-        </Button>
+        <div className="order-last ml-auto flex gap-2">
+          {/* On wide screens, export lives in the summary panel. */}
+          <Button asChild variant="outline" size="sm" className="lg:hidden">
+            <a href={exportHref} download aria-label="Export CSV">
+              <Download /> <span className="max-sm:sr-only">Export</span>
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/transactions/import">
+              <FileUp /> <span className="max-sm:sr-only">Import CSV</span>
+            </Link>
+          </Button>
+        </div>
         <Button variant="ghost" size="icon" aria-label="Previous month" onClick={() => go({ month: shiftMonth(values.month, -1) })}>
           <ChevronLeft />
         </Button>
@@ -64,7 +73,7 @@ export function TransactionFilters({
       </div>
       <div className="flex flex-wrap gap-2">
         <form
-          className="relative min-w-48 flex-1"
+          className="relative w-full sm:w-auto sm:min-w-48 sm:flex-1"
           onSubmit={(e) => {
             e.preventDefault();
             go({ q: String(new FormData(e.currentTarget).get("q") ?? "").trim() || undefined });
@@ -81,7 +90,7 @@ export function TransactionFilters({
           />
         </form>
         <Select value={values.account ?? "all"} onValueChange={(v) => go({ account: v === "all" ? undefined : v })}>
-          <SelectTrigger className="w-44" aria-label="Filter by account">
+          <SelectTrigger className="min-w-0 flex-1 sm:w-44 sm:flex-none" aria-label="Filter by account">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -94,7 +103,7 @@ export function TransactionFilters({
           </SelectContent>
         </Select>
         <Select value={values.category ?? "all"} onValueChange={(v) => go({ category: v === "all" ? undefined : v })}>
-          <SelectTrigger className="w-44" aria-label="Filter by category">
+          <SelectTrigger className="min-w-0 flex-1 sm:w-44 sm:flex-none" aria-label="Filter by category">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
