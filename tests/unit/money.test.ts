@@ -39,3 +39,12 @@ describe("formatMoney", () => {
     expect(fmt(1500, "JPY")).toBe("JP¥1.500");
   });
 });
+
+describe("formatCompact", async () => {
+  const { formatCompact } = await import("@/lib/money");
+  it("shortens IDR amounts the Indonesian way", () => {
+    expect(formatCompact(45000)).toBe("45 rb");
+    expect(formatCompact(-1250000)).toBe("1,3 jt");
+    expect(formatCompact(950)).toBe("950");
+  });
+});

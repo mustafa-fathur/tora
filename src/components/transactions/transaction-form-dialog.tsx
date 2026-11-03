@@ -40,6 +40,7 @@ export type TransactionFormProps = {
   transaction?: Transaction; // edit a regular transaction
   transfer?: { out: Transaction; in: Transaction }; // edit a transfer
   defaultAccountId?: string;
+  defaultDate?: string; // YYYY-MM-DD for new transactions (default: today)
 };
 
 type DialogProps = TransactionFormProps & {
@@ -105,10 +106,12 @@ function TransactionForm(form: TransactionFormProps & { onDone: () => void }) {
     const v = transfer ? transfer.out.amount : t?.amount;
     return v ? String(Math.abs(Number(v))) : "";
   });
-  const [date] = useState(() => transfer?.out.date ?? t?.date ?? today());
+  const [date] = useState(() => transfer?.out.date ?? t?.date ?? form.defaultDate ?? today());
   const [time] = useState(() => {
     const existing = transfer ? transfer.out.time : t?.time;
-    return editing ? (existing?.slice(0, 5) ?? "") : nowTime();
+    // A past or future day gets no time; today gets the current time.
+    if (editing) return existing?.slice(0, 5) ?? "";
+    return !form.defaultDate || form.defaultDate === today() ? nowTime() : "";
   });
 
   const selectable = accounts.filter(

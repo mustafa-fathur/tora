@@ -44,3 +44,11 @@ export function parseAmount(input: string, currency = "IDR"): number | null {
   const value = Math.round(Number(s) * factor) / factor;
   return value > 0 && value <= MAX_AMOUNT ? value : null;
 }
+
+// Short form for tight spaces like calendar cells: 45.000 → "45 rb", 1.250.000 → "1,3 jt".
+// IDR only (other currencies are converted before display).
+export function formatCompact(amount: number) {
+  return new Intl.NumberFormat("id-ID", { notation: "compact", maximumFractionDigits: 1 })
+    .format(Math.abs(amount))
+    .replace(/\s/g, " ");
+}
